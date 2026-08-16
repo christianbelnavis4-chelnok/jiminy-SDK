@@ -1,0 +1,62 @@
+{
+  "vector_id": "v09",
+  "description": "Five-step trace (maximum realistic depth)",
+  "hmac_key": "test-key-vectors",
+  "trace": {
+    "trace_id": "v09-0000-0000-0000",
+    "agent_id": "test-agent-v09",
+    "steps": [
+      {
+        "step_id": 1,
+        "tool": "retrieve",
+        "input": "patient-123",
+        "output": "record-blob",
+        "reasoning": "Fetch patient record"
+      },
+      {
+        "step_id": 2,
+        "tool": "parse",
+        "input": "record-blob",
+        "output": {
+          "age": 45,
+          "conditions": [
+            "hypertension"
+          ]
+        },
+        "reasoning": "Extract structured fields"
+      },
+      {
+        "step_id": 3,
+        "tool": "lookup",
+        "input": "hypertension",
+        "output": "guideline-text",
+        "reasoning": "Retrieve clinical guideline"
+      },
+      {
+        "step_id": 4,
+        "tool": "recommend",
+        "input": {
+          "age": 45,
+          "guideline": "guideline-text"
+        },
+        "output": "lifestyle changes",
+        "reasoning": "Apply guideline to patient profile"
+      },
+      {
+        "step_id": 5,
+        "tool": "draft",
+        "input": "lifestyle changes",
+        "output": "Dear patient, ...",
+        "reasoning": "Draft patient-facing letter"
+      }
+    ]
+  },
+  "expected_step_hashes": [
+    "0cfdccc05ed3234fb4ee234313a528143df11201c947dd2f1170062447510cbb",
+    "f53471a66d3ce753999f76a5b9452be50645badacdde2567e71f4a208db9a444",
+    "66b66592d0b2096d2cf853d26fa87bd18ff43a65437be429917363fe8a5a6170",
+    "14725051a9d89ff2c1ebc06afc6aba9de6486863350e006ddce0ba04f1fe884c",
+    "a605f64311b09b8c49998fbdf2aa267e813eb42053a678868a2ce0f17ee958e8"
+  ],
+  "expected_root_hash": "07e2a444642c863b8a627ada1ea2d1e97b2738293a442c0d5e1e2a0103738047"
+}

@@ -1,0 +1,38 @@
+{
+  "vector_id": "v02",
+  "description": "Three-step trace",
+  "hmac_key": "test-key-vectors",
+  "trace": {
+    "trace_id": "v02-0000-0000-0000",
+    "agent_id": "test-agent-v02",
+    "steps": [
+      {
+        "step_id": 1,
+        "tool": "search",
+        "input": "query",
+        "output": "results",
+        "reasoning": "Initial search"
+      },
+      {
+        "step_id": 2,
+        "tool": "read",
+        "input": "doc-id-1",
+        "output": "content here",
+        "reasoning": "Read first result"
+      },
+      {
+        "step_id": 3,
+        "tool": "summarise",
+        "input": "content here",
+        "output": "summary",
+        "reasoning": "Produce final answer"
+      }
+    ]
+  },
+  "expected_step_hashes": [
+    "644809b72bea334380fdb2583be15184c2c7829a70635cdd9c5db75dbb71471d",
+    "c1f1e23218a586abab501fd3ea3b1e2eddf3c6d7a4603e820ece786cb258c63f",
+    "47f349d61f1b78b7b49c1f7a03032a3f6b15e27f16d5afbc51643e37b8c2519f"
+  ],
+  "expected_root_hash": "212baacc9edf51a8eddaebe1f4ea4497591579acab9c10d84d8d33fbd030621d"
+}

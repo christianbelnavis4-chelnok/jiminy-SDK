@@ -1,0 +1,30 @@
+{
+  "vector_id": "v06",
+  "description": "Two-step trace with a different HMAC key",
+  "hmac_key": "alternate-signing-key-abc123",
+  "trace": {
+    "trace_id": "v06-0000-0000-0000",
+    "agent_id": "test-agent-v06",
+    "steps": [
+      {
+        "step_id": 1,
+        "tool": "fetch",
+        "input": "url",
+        "output": "html",
+        "reasoning": "Fetch page"
+      },
+      {
+        "step_id": 2,
+        "tool": "parse",
+        "input": "html",
+        "output": "data",
+        "reasoning": "Extract structured data"
+      }
+    ]
+  },
+  "expected_step_hashes": [
+    "e6d107fb3e47601632071ab612f73f3c0196394f02e2af645e74598e27483e08",
+    "79b744182276789a85c668a4a30cee7fb7e495bfb5110dc6ab9b8ce8a2446432"
+  ],
+  "expected_root_hash": "06291228f21b672b35dded5586d96bfcc84612b3c4c66f87de2723968230a5e7"
+}

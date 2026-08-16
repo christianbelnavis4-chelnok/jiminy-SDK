@@ -1,0 +1,25 @@
+# Copy this to .github/workflows/jiminy-evaluate.yml in YOUR repo — see
+# examples/langchain_quickstart/ci-workflow-example.yml for the same
+# pattern with more comments. Identical action, different trace fixtures
+# (insurance underwriting here instead of the weather-bot example).
+
+name: Jiminy agent accountability check
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  jiminy-evaluate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Evaluate agent traces
+        uses: christianbelnavis4-chelnok/jiminy-sdk/.github/actions/evaluate@main
+        with:
+          api-key: ${{ secrets.JIMINY_API_KEY }}
+          base-url: ${{ vars.JIMINY_BASE_URL }}
+          traces-glob: 'traces/*.json'
+          fail-on: rejected

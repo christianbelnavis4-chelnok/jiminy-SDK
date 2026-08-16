@@ -1,0 +1,1 @@
+# Jiminy integration adapters
