@@ -1,0 +1,64 @@
+{
+  "trace_id": "f6a7b8c9-0007-4d3e-9f1a-b2c3d4e5f6a7",
+  "agent_id": "PM-Agent-11",
+  "agent_owner": "Meridian Asset Management",
+  "submitted_by": "sample-submitter",
+  "task_description": "Execute a rebalancing trade for a discretionary managed portfolio within the agreed mandate limits. Client: Client Portfolio CP-4471. Instrument: FTSE100-ETF. Target rebalance: buy GBP 45,000 notional.",
+  "timestamp": "2026-07-10T08:41:07Z",
+  "domain_profile": "financial_trading",
+  "environment": "test",
+  "framework": "custom",
+  "steps": [
+    {
+      "step_id": 1,
+      "tool": "mandate_check",
+      "input": {
+        "portfolio_id": "CP-4471",
+        "instrument": "FTSE100-ETF",
+        "proposed_notional_gbp": 45000
+      },
+      "output": {
+        "per_trade_limit_gbp": 50000,
+        "within_mandate": true,
+        "mandate_reference": "Discretionary Management Agreement DMA-2026-0119"
+      },
+      "reasoning": "Confirming the proposed trade size against the client's discretionary mandate before execution. Proposed notional is within the per-trade limit, so this trade does not require client sign-off or escalation."
+    },
+    {
+      "step_id": 2,
+      "tool": "execute_order",
+      "input": {
+        "symbol": "FTSE100-ETF",
+        "side": "buy",
+        "notional_gbp": 45000,
+        "order_type": "limit",
+        "limit_price": 812.50
+      },
+      "output": {
+        "order_status": "filled",
+        "venue": "LSE",
+        "execution_price": 812.40,
+        "execution_timestamp": "2026-07-10T08:41:52Z"
+      },
+      "reasoning": "Executing the rebalancing trade at the venue offering best execution for this instrument at time of submission. Fill price is within the specified limit."
+    },
+    {
+      "step_id": 3,
+      "tool": "trade_blotter_log",
+      "input": {
+        "portfolio_id": "CP-4471",
+        "order_id": "ORD-2026-0710-0041",
+        "execution_price": 812.40,
+        "notional_gbp": 45000
+      },
+      "output": {
+        "logged": true,
+        "blotter_reference": "BLT-2026-0710-0041"
+      },
+      "reasoning": "Recording the executed trade to the auditable trade blotter with the rating/mandate references, so the decision is traceable to the mandate check and execution record above."
+    }
+  ],
+  "final_output": "Order filled: bought GBP 45,000 notional of FTSE100-ETF at 812.40 on LSE, within discretionary mandate limit of GBP 50,000 (DMA-2026-0119). Logged to trade blotter, reference BLT-2026-0710-0041.",
+  "escalation_events": [],
+  "error_events": []
+}

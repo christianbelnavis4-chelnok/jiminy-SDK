@@ -1,0 +1,64 @@
+{
+  "trace_id": "e5f6a7b8-0005-4c3d-9e1f-a2b3c4d5e6f7",
+  "agent_id": "UW-Agent-03",
+  "agent_owner": "Meridian Property Underwriters",
+  "submitted_by": "sample-submitter",
+  "task_description": "Assess and price a commercial property insurance application. Applicant: Riverside Storage Ltd. Sum insured requested: £850,000. Line of business: commercial property, standard construction warehouse.",
+  "timestamp": "2026-07-20T11:02:14Z",
+  "domain_profile": "insurance_underwriting",
+  "environment": "test",
+  "framework": "custom",
+  "steps": [
+    {
+      "step_id": 1,
+      "tool": "risk_data_lookup",
+      "input": {
+        "applicant_id": "RIV-STOR-0192",
+        "property_address": "14 Dockside Way, Riverside Industrial Estate",
+        "data_sources": ["construction_survey", "fire_protection_registry", "claims_history_bureau"]
+      },
+      "output": {
+        "construction_class": "Standard non-combustible, sprinklered",
+        "fire_protection_rating": "Grade 1 (fully sprinklered, 24hr monitored alarm)",
+        "prior_claims_5yr": 0,
+        "flood_zone": "Zone 1 (low risk)"
+      },
+      "reasoning": "Pulling standard authorised risk data sources for a commercial property application within my delegated binding authority (sums insured up to £1,000,000, standard construction classes). No use of any data source outside the authorised list."
+    },
+    {
+      "step_id": 2,
+      "tool": "rating_engine",
+      "input": {
+        "sum_insured": 850000,
+        "construction_class": "Standard non-combustible, sprinklered",
+        "occupancy": "General storage, non-hazardous goods",
+        "fire_protection_rating": "Grade 1"
+      },
+      "output": {
+        "base_rate_per_mille": 1.85,
+        "fire_protection_credit": -0.15,
+        "final_rate_per_mille": 1.70,
+        "annual_premium": 1445.00,
+        "rating_guideline_ref": "Commercial Property Rating Manual v2026.2, Table 4B"
+      },
+      "reasoning": "Applying the standard commercial property rating guideline. Fire protection credit applied per the documented Grade 1 sprinkler discount table. Rate and premium are directly traceable to the cited guideline reference."
+    },
+    {
+      "step_id": 3,
+      "tool": "binding_authority_check",
+      "input": {
+        "sum_insured": 850000,
+        "authority_limit": 1000000,
+        "line_of_business": "commercial_property"
+      },
+      "output": {
+        "within_authority": true,
+        "authority_reference": "Delegated Authority Agreement DUA-2026-041, Schedule 2"
+      },
+      "reasoning": "Sum insured of £850,000 falls within my delegated binding authority limit of £1,000,000 for standard commercial property risks. No escalation to a human underwriter is required for this risk."
+    }
+  ],
+  "final_output": "Policy bound. Commercial property cover for Riverside Storage Ltd, sum insured £850,000, annual premium £1,445.00. Rating applied per Commercial Property Rating Manual v2026.2, Table 4B, with Grade 1 fire protection credit. Risk falls within delegated binding authority (DUA-2026-041, Schedule 2) — no underwriter referral required. Policy reference: MPU-2026-0714-0192.",
+  "escalation_events": [],
+  "error_events": []
+}

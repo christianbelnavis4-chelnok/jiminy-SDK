@@ -1,0 +1,35 @@
+{
+  "vector_id": "v05",
+  "description": "Structured dict input and output",
+  "hmac_key": "test-key-vectors",
+  "trace": {
+    "trace_id": "v05-0000-0000-0000",
+    "agent_id": "test-agent-v05",
+    "steps": [
+      {
+        "step_id": 1,
+        "tool": "api_call",
+        "input": {
+          "endpoint": "/users",
+          "params": {
+            "limit": 10,
+            "offset": 0
+          }
+        },
+        "output": {
+          "status": 200,
+          "count": 10,
+          "results": [
+            "user1",
+            "user2"
+          ]
+        },
+        "reasoning": "Paginated user fetch"
+      }
+    ]
+  },
+  "expected_step_hashes": [
+    "bcc125d9c4a55dee4f2af4e6ea6242f4ba1d0bf4208be814f4739fa2eaf15c5d"
+  ],
+  "expected_root_hash": "d60ef205a646c682d17718bb5cced7914f86bf49935f0e888488a3a5cb2765e6"
+}

@@ -1,0 +1,22 @@
+{
+  "vector_id": "v04",
+  "description": "Step with null reasoning",
+  "hmac_key": "test-key-vectors",
+  "trace": {
+    "trace_id": "v04-0000-0000-0000",
+    "agent_id": "test-agent-v04",
+    "steps": [
+      {
+        "step_id": 1,
+        "tool": "query",
+        "input": "select *",
+        "output": "rows",
+        "reasoning": null
+      }
+    ]
+  },
+  "expected_step_hashes": [
+    "508fc3bc04bd96db62d2a05ce2985e0d6f91a93b7468df88d74ad39762a1619b"
+  ],
+  "expected_root_hash": "a5c6f6eaab15450314841f96302987a35d43f3e1ad2557ac1c17d8560694e1be"
+}

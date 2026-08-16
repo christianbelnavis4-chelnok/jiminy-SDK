@@ -1,0 +1,38 @@
+name: CI
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+jobs:
+  test:
+    name: Lint, test
+    runs-on: ubuntu-latest
+    env:
+      # CrewAI's own telemetry client tries to phone home to
+      # telemetry.crewai.com on import in a background thread — harmless
+      # but noisy (read-timeout stack traces) in a CI sandbox with no
+      # outbound access to that host. Disabled for test runs only.
+      CREWAI_DISABLE_TELEMETRY: "true"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -e ".[dev,langchain,crewai]"
+
+      - name: Lint
+        run: python -m ruff check .
+
+      - name: Test
+        run: python -m pytest tests/ -q
