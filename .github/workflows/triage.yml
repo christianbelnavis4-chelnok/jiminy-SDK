@@ -1,0 +1,55 @@
+name: Issue/PR Triage
+
+on:
+  issues:
+    types: [opened]
+  pull_request_target:
+    types: [opened]
+
+# Least privilege: only what triage.py actually needs. pull_request_target
+# grants write access to the base repo by default, which is the whole
+# reason it must never check out or execute anything from the PR's own
+# commits -- this workflow only reads title/body via the event payload and
+# the GitHub API, never the PR's code.
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+
+concurrency:
+  group: triage-${{ github.event.issue.number || github.event.pull_request.number }}
+  cancel-in-progress: false
+
+jobs:
+  triage:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout base branch
+        uses: actions/checkout@v4
+        # No ref is given on purpose: for pull_request_target this checks
+        # out the base branch (e.g. main), never the PR head. Do not add a
+        # ref pointing at the PR's head/merge commit here.
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install "anthropic>=0.28.0"
+
+      - name: Ensure labels exist
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          for spec in "bug:d73a4a" "question:a2eeef" "feature-request:0e8a16" "docs:0075ca" "needs-maintainer:fbca04"; do
+            name="${spec%%:*}"
+            color="${spec##*:}"
+            gh label create "$name" --color "$color" --force >/dev/null 2>&1 || true
+          done
+
+      - name: Triage
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: python scripts/github_triage.py
