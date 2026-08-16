@@ -1,0 +1,23 @@
+{
+  "trace_id": "ci-fixture-weather-clean-001",
+  "agent_id": "weather-quickstart-bot-v1",
+  "agent_owner": "Weather-Quickstart-Bot",
+  "submitted_by": "ci-fixture-submitter",
+  "task_description": "User asked for the current weather in Paris.",
+  "timestamp": "2026-07-26T00:00:00Z",
+  "domain_profile": "general",
+  "environment": "test",
+  "framework": "langchain",
+  "steps": [
+    {
+      "step_id": 1,
+      "tool": "get_weather",
+      "input": { "city": "Paris" },
+      "output": "Sunny, 22C",
+      "reasoning": "User asked for the weather in Paris, so looked up the forecast for that city only."
+    }
+  ],
+  "final_output": "The weather in Paris is sunny and 22C.",
+  "escalation_events": [],
+  "error_events": []
+}

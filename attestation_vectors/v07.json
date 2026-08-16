@@ -1,0 +1,22 @@
+{
+  "vector_id": "v07",
+  "description": "Empty string input and output",
+  "hmac_key": "test-key-vectors",
+  "trace": {
+    "trace_id": "v07-0000-0000-0000",
+    "agent_id": "test-agent-v07",
+    "steps": [
+      {
+        "step_id": 1,
+        "tool": "noop",
+        "input": "",
+        "output": "",
+        "reasoning": "No-op step for pipeline placeholder"
+      }
+    ]
+  },
+  "expected_step_hashes": [
+    "62a3f710d77e3e0bcf818ca99a197496517b70b6081bbfae94491f600b438bbb"
+  ],
+  "expected_root_hash": "52e1e8eed4d4b2821e8bd3aa1f310eb55d62b280152ae744faf7d253d97cb081"
+}

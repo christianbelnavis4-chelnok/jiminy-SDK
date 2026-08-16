@@ -1,0 +1,30 @@
+{
+  "vector_id": "v08",
+  "description": "List input and output values",
+  "hmac_key": "test-key-vectors",
+  "trace": {
+    "trace_id": "v08-0000-0000-0000",
+    "agent_id": "test-agent-v08",
+    "steps": [
+      {
+        "step_id": 1,
+        "tool": "filter",
+        "input": [
+          "item1",
+          "item2",
+          "item3",
+          "item4"
+        ],
+        "output": [
+          "item1",
+          "item3"
+        ],
+        "reasoning": "Filtered by relevance score above threshold"
+      }
+    ]
+  },
+  "expected_step_hashes": [
+    "e20d5a612e0476151bc49fda52fbe4e20eafbaa8300764b1098f0e2556ed267c"
+  ],
+  "expected_root_hash": "ef825c4589c3ed2ab53a11d3599388fb41f94741d6ee257ace812692a2638c9c"
+}

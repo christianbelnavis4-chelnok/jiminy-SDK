@@ -1,0 +1,26 @@
+{
+  "name": "@jiminy/sdk",
+  "version": "0.1.0",
+  "description": "Jiminy SDK — attested trace builder and evaluation client for the Jiminy accountability API",
+  "main": "src/index.js",
+  "types": "index.d.ts",
+  "files": [
+    "src",
+    "index.d.ts",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "test": "node --test"
+  },
+  "dependencies": {},
+  "devDependencies": {},
+  "license": "UNLICENSED",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/christianbelnavis4-chelnok/jiminy-sdk",
+    "directory": "clients/js"
+  }
+}

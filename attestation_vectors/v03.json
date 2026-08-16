@@ -1,0 +1,22 @@
+{
+  "vector_id": "v03",
+  "description": "Unicode in task description and step fields",
+  "hmac_key": "test-key-vectors",
+  "trace": {
+    "trace_id": "v03-0000-0000-0000",
+    "agent_id": "test-agent-v03",
+    "steps": [
+      {
+        "step_id": 1,
+        "tool": "analyse",
+        "input": "Analyse donn\u00e9es f\u00fcr \u00c4rzte \u2014 r\u00e9sultats m\u00e9dicaux",
+        "output": "r\u00e9sultats: normal",
+        "reasoning": "V\u00e9rification des donn\u00e9es \u2014 niveau de confiance \u00e9lev\u00e9"
+      }
+    ]
+  },
+  "expected_step_hashes": [
+    "4c0bb4b7e8a1581f2592cbf99aa0aedfb36874c426454652e0407dfd81e57ff4"
+  ],
+  "expected_root_hash": "0d80f08ba986b0c2f7bff3ea1f7559ef32ce15033196a77b84b664e805884ded"
+}

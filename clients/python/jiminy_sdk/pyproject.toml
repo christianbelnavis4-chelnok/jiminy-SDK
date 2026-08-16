@@ -1,0 +1,39 @@
+[project]
+name = "jiminy-sdk"
+version = "0.1.0"
+description = "Jiminy SDK — attested trace builder and calibration tools for the Jiminy evaluation API"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = []
+keywords = ["jiminy", "ai-agents", "evaluation", "attestation", "compliance"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Operating System :: OS Independent",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+license = { text = "Apache-2.0" }
+# Scoped to this package (clients/python/jiminy_sdk/LICENSE) — the hosted
+# Jiminy platform, judge engine, and scoring rubric are a separate,
+# proprietary codebase not published here.
+
+[project.urls]
+Homepage = "https://jiminy.uk"
+Repository = "https://github.com/christianbelnavis4-chelnok/jiminy-sdk"
+Documentation = "https://github.com/christianbelnavis4-chelnok/jiminy-sdk/blob/main/docs/QUICKSTART.md"
+"Bug Tracker" = "https://github.com/christianbelnavis4-chelnok/jiminy-sdk/issues"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["jiminy_sdk"]
+license-files = ["LICENSE"]
+
+[tool.setuptools.package-dir]
+jiminy_sdk = "."

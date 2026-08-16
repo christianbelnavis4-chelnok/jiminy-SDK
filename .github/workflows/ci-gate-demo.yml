@@ -1,0 +1,24 @@
+name: Jiminy CI Gate Demo
+
+# Scoped narrowly to the two demo trace fixtures used by the CI-gate
+# journey so it never runs on, or
+# blocks, ordinary development PRs — only PRs that touch the demo traces
+# themselves exercise the Jiminy Evaluate action end to end.
+on:
+  pull_request:
+    paths:
+      - "examples/langchain_quickstart/traces/**"
+
+jobs:
+  evaluate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Evaluate demo traces with Jiminy
+        uses: ./.github/actions/evaluate
+        with:
+          api-key: ${{ secrets.JIMINY_API_KEY }}
+          base-url: ${{ vars.JIMINY_BASE_URL }}
+          traces-glob: "examples/langchain_quickstart/traces/*.json"
+          fail-on: rejected

@@ -1,0 +1,29 @@
+# Copy this to .github/workflows/jiminy-evaluate.yml in YOUR repo (not this
+# one — GitHub only runs workflows from a real .github/workflows/ at the
+# repo root, so this file is named .yml, not placed there directly, to
+# avoid being mistaken for a live workflow in the Jiminy repo itself).
+#
+# Runs the fixtures in traces/*.json against Jiminy on every PR. See
+# scripts/ci_evaluate.py and .github/actions/evaluate/action.yml in the
+# Jiminy repo for what this actually does.
+
+name: Jiminy agent accountability check
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  jiminy-evaluate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Evaluate agent traces
+        uses: christianbelnavis4-chelnok/jiminy-sdk/.github/actions/evaluate@main
+        with:
+          api-key: ${{ secrets.JIMINY_API_KEY }}
+          base-url: ${{ vars.JIMINY_BASE_URL }}
+          traces-glob: 'traces/*.json'
+          fail-on: rejected   # use 'flagged' to also fail on a flagged verdict

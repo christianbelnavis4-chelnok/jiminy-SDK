@@ -1,0 +1,32 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "jiminy-sdk-tools"
+version = "0.1.0"
+description = "Framework adapters, trace schema, and validator CLI for the Jiminy evaluation SDK"
+requires-python = ">=3.11"
+license = { text = "Apache-2.0" }
+dependencies = [
+    "pydantic>=2.7.0,<3.0.0",
+]
+
+[project.optional-dependencies]
+dev = ["ruff", "pytest", "pytest-cov"]
+# adapters/langchain — optional, only needed to use create_jiminy_callback_handler.
+langchain = ["langchain-core>=0.3"]
+# adapters/crewai/live.py — optional, only needed to use create_jiminy_event_listener.
+# adapters/crewai/adapter.py's from_crew_output needs no install at all (dict form).
+crewai = ["crewai>=0.86"]
+
+[tool.setuptools.packages.find]
+include = ["adapters*", "schema*", "validator*"]
+
+[tool.pytest.ini_options]
+
+[tool.ruff]
+line-length = 120
+
+[tool.ruff.lint]
+select = ["F", "I", "UP"]

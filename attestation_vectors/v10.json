@@ -1,0 +1,30 @@
+{
+  "vector_id": "v10",
+  "description": "Step IDs starting from 0",
+  "hmac_key": "test-key-vectors",
+  "trace": {
+    "trace_id": "v10-0000-0000-0000",
+    "agent_id": "test-agent-v10",
+    "steps": [
+      {
+        "step_id": 0,
+        "tool": "init",
+        "input": "config",
+        "output": "ready",
+        "reasoning": "Initialise context"
+      },
+      {
+        "step_id": 1,
+        "tool": "execute",
+        "input": "ready",
+        "output": "done",
+        "reasoning": "Run primary action"
+      }
+    ]
+  },
+  "expected_step_hashes": [
+    "c02a236e425dccc07656c7a13ff5fbf957105b91a9924da95c76bcccc2e59f4c",
+    "d048910cf08d7c7a89d6082e12a878891291148287dc56adaf10029c92a6f8a2"
+  ],
+  "expected_root_hash": "f8e9a4f45a7f2ff71ed3aee0aaf8b8ad9a0f1d7a6878c35e67bc18ec2efefc63"
+}

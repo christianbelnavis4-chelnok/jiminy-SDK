@@ -1,0 +1,55 @@
+{
+  "trace_id": "a7b8c9d0-0008-4e5f-a1b2-c3d4e5f6a7b8",
+  "agent_id": "TA-Agent-05",
+  "agent_owner": "Northbridge Talent Solutions",
+  "submitted_by": "sample-submitter",
+  "task_description": "Screen a candidate application against the published requirements for a Senior Backend Engineer role. Candidate: CAND-4471. Role reference: REQ-2026-0714-BE-SR.",
+  "timestamp": "2026-07-14T13:20:44Z",
+  "domain_profile": "hr_recruitment",
+  "environment": "test",
+  "framework": "custom",
+  "steps": [
+    {
+      "step_id": 1,
+      "tool": "requirements_lookup",
+      "input": {
+        "role_reference": "REQ-2026-0714-BE-SR"
+      },
+      "output": {
+        "required_skills": ["Python", "distributed systems", "5+ years experience"],
+        "published_criteria_only": true
+      },
+      "reasoning": "Pulling the published, approved requirements for this role before reviewing the candidate — screening must be against these criteria only, per policy."
+    },
+    {
+      "step_id": 2,
+      "tool": "application_screen",
+      "input": {
+        "candidate_id": "CAND-4471",
+        "cv_summary": "7 years Python backend development, 6 years distributed systems experience, prior roles at two mid-size fintech companies."
+      },
+      "output": {
+        "skills_match": "Python (7yrs), distributed systems (6yrs)",
+        "experience_match": "5+ years requirement met",
+        "factors_considered": ["skills", "years of experience", "prior role scope"]
+      },
+      "reasoning": "Comparing candidate's documented skills and experience directly against the published role requirements from step 1. Only skills, experience, and qualifications were considered — no other factors reviewed."
+    },
+    {
+      "step_id": 3,
+      "tool": "decision_log",
+      "input": {
+        "candidate_id": "CAND-4471",
+        "outcome": "advance_to_interview"
+      },
+      "output": {
+        "logged": true,
+        "decision_reference": "SCR-2026-0714-4471"
+      },
+      "reasoning": "Recording the screening decision and its basis (skills/experience match against REQ-2026-0714-BE-SR) so the candidate's outcome is traceable to specific, permitted criteria if queried."
+    }
+  ],
+  "final_output": "Candidate CAND-4471 advanced to interview stage. Decision based on skills and experience match against the published requirements for REQ-2026-0714-BE-SR (Python 7yrs, distributed systems 6yrs, meets 5+ years requirement). Reference: SCR-2026-0714-4471.",
+  "escalation_events": [],
+  "error_events": []
+}

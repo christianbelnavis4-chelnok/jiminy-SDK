@@ -1,0 +1,22 @@
+{
+  "vector_id": "v01",
+  "description": "Single-step trace, clean pass",
+  "hmac_key": "test-key-vectors",
+  "trace": {
+    "trace_id": "v01-0000-0000-0000",
+    "agent_id": "test-agent-v01",
+    "steps": [
+      {
+        "step_id": 1,
+        "tool": "search",
+        "input": "query",
+        "output": "results",
+        "reasoning": "Search for relevant data"
+      }
+    ]
+  },
+  "expected_step_hashes": [
+    "d4d6a8b9a6879dcf5c2154af9850b33968056a8e080f941b14d6ee0ad843808c"
+  ],
+  "expected_root_hash": "434593367c637b0f30942bd45f15e64c4458620b177104638126a82792bb2c76"
+}

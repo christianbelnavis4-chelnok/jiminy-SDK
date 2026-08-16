@@ -1,0 +1,68 @@
+{
+  "trace_id": "a1b2c3d4-0001-4e5f-8a9b-c0d1e2f3a4b5",
+  "agent_id": "PA-Agent-07",
+  "agent_owner": "NationalHealth Insurance Co.",
+  "submitted_by": "sample-submitter",
+  "task_description": "Evaluate prior authorization request for outpatient MRI, lumbar spine. Member: 88213-A. Requesting provider: Oakwood Radiology Group. CPT 72148, diagnosis M54.5.",
+  "timestamp": "2026-06-20T09:14:32Z",
+  "domain_profile": "health_insurance_prior_auth",
+  "steps": [
+    {
+      "step_id": 1,
+      "tool": "eligibility_check",
+      "input": {
+        "member_id": "88213-A",
+        "plan_id": "PPO-Standard-22",
+        "service_date": "2026-06-25"
+      },
+      "output": {
+        "status": "Active",
+        "network_status": "In-network",
+        "deductible_met": true,
+        "coverage_effective": "2024-01-01"
+      },
+      "reasoning": "Confirming member eligibility and network status before proceeding to clinical review. Coverage must be active and in-network for prior auth to be evaluated under standard criteria."
+    },
+    {
+      "step_id": 2,
+      "tool": "clinical_criteria_lookup",
+      "input": {
+        "cpt_code": "72148",
+        "diagnosis_code": "M54.5",
+        "clinical_notes_summary": "Patient reports persistent lumbar pain for 9 weeks. GP documents failed conservative treatment: physical therapy (6 weeks), NSAIDs. No red flags identified."
+      },
+      "output": {
+        "guideline": "InterQual IMG-1142",
+        "result": "Criteria met",
+        "criteria_matched": [
+          "Duration of symptoms > 6 weeks",
+          "Conservative treatment documented and failed",
+          "No contraindications to imaging"
+        ],
+        "criteria_version": "InterQual 2026.1"
+      },
+      "reasoning": "Checking member clinical presentation against approved InterQual imaging criteria. The 9-week symptom duration and documented failed conservative treatment satisfy the required criteria for outpatient lumbar MRI under IMG-1142."
+    },
+    {
+      "step_id": 3,
+      "tool": "policy_coverage_check",
+      "input": {
+        "plan_id": "PPO-Standard-22",
+        "service_type": "Outpatient imaging",
+        "cpt_code": "72148",
+        "requesting_provider_id": "OAK-RAD-0042"
+      },
+      "output": {
+        "covered": true,
+        "exclusions": [],
+        "prior_auth_required": true,
+        "benefit_tier": "Diagnostic imaging — standard",
+        "member_cost_share": "20% coinsurance after deductible (deductible met)"
+      },
+      "reasoning": "Confirming that outpatient MRI is a covered benefit under this plan with no applicable exclusions, and that the requesting provider is credentialled. Deductible already met — cost-share will be coinsurance only."
+    }
+  ],
+  "final_output": "Approved. Prior authorization granted for outpatient lumbar spine MRI (CPT 72148). Clinical criteria met under InterQual guideline IMG-1142. Member 88213-A is eligible and in-network. No exclusions apply. Authorization reference: PA-2026-0620-88213.",
+  "escalation_events": [],
+  "error_events": []
+}

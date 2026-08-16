@@ -1,0 +1,67 @@
+name: Publish jiminy-sdk to PyPI
+
+# Public PyPI distribution for clients/python/jiminy_sdk (the hand-written,
+# dependency-free developer SDK -- TraceBuilder, Client, CalibrationSession).
+#
+# Uses PyPI's Trusted Publisher flow (OIDC) rather than a stored API
+# token: no PYPI_API_TOKEN secret to create, rotate, or leak. Requires a
+# one-time Trusted Publisher link on the PyPI project settings page,
+# pointing at this repo/workflow, before the first tag push will actually
+# publish anything -- this workflow will fail cleanly (PyPI rejects the
+# OIDC claim) until that's done, not silently no-op.
+#
+# Triggered by pushing a version tag:
+#   git tag jiminy-sdk-v<version> && git push origin jiminy-sdk-v<version>
+# <version> must match the `version` field in
+# clients/python/jiminy_sdk/pyproject.toml exactly, or the build step
+# will produce a filename PyPI already has a different version at.
+
+on:
+  push:
+    tags:
+      - "jiminy-sdk-v*"
+
+permissions:
+  contents: read
+  id-token: write # required for PyPI Trusted Publishing (OIDC)
+
+jobs:
+  build:
+    name: Build jiminy-sdk
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install build tools
+        run: pip install build
+
+      - name: Build wheel and sdist
+        working-directory: clients/python/jiminy_sdk
+        run: python -m build
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: jiminy-sdk-dist
+          path: clients/python/jiminy_sdk/dist/
+
+  publish:
+    name: Publish to PyPI
+    needs: build
+    runs-on: ubuntu-latest
+    environment: pypi
+    steps:
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: jiminy-sdk-dist
+          path: dist/
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
