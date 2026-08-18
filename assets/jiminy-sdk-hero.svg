@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 480" width="1280" height="480" role="img" aria-label="Jiminy — Agent Accountability. SDK: clients for the independent evaluation layer.">
+  <defs>
+    <style>
+      .wordmark { font-family: 'Segoe UI', Helvetica, Arial, sans-serif; font-weight: 800; }
+      .subtitle { font-family: 'Segoe UI', Helvetica, Arial, sans-serif; font-weight: 600; letter-spacing: 6px; }
+      .tagline { font-family: 'Segoe UI', Helvetica, Arial, sans-serif; font-weight: 400; }
+      .mono { font-family: 'Consolas', 'Courier New', monospace; }
+    </style>
+  </defs>
+
+  <rect x="0" y="0" width="1280" height="480" fill="#1C1F1D"/>
+
+  <!-- circuit-line decorations -->
+  <g fill="none" stroke="#4A9B5F" stroke-width="1.5" opacity="0.65">
+    <polyline points="0,88 220,88 288,20 565,20"/>
+    <circle cx="220" cy="88" r="3.5" fill="#4A9B5F" stroke="none"/>
+    <circle cx="565" cy="20" r="3.5" fill="#4A9B5F" stroke="none"/>
+    <polyline points="1280,130 1040,130 972,178 758,178"/>
+    <circle cx="1040" cy="130" r="3.5" fill="#4A9B5F" stroke="none"/>
+    <circle cx="758" cy="178" r="3.5" fill="#4A9B5F" stroke="none"/>
+    <polyline points="0,310 500,310"/>
+  </g>
+  <g fill="none" stroke="#C9A84C" stroke-width="1.5" opacity="0.55">
+    <polyline points="0,220 150,220 210,255 425,255"/>
+    <circle cx="425" cy="255" r="3.5" fill="#C9A84C" stroke="none"/>
+    <polyline points="1280,222 1050,222 990,255 900,255"/>
+    <circle cx="900" cy="255" r="3.5" fill="#C9A84C" stroke="none"/>
+    <polyline points="0,430 245,430"/>
+  </g>
+
+  <!-- hexagon logo mark -->
+  <g transform="translate(640,178)">
+    <polygon points="0,-72 62,-36 62,36 0,72 -62,36 -62,-36" fill="none" stroke="#F7F6F2" stroke-width="4"/>
+    <line x1="-34" y1="34" x2="34" y2="-34" stroke="#4A9B5F" stroke-width="9" stroke-linecap="round"/>
+  </g>
+
+  <!-- wordmark -->
+  <text x="640" y="288" text-anchor="middle" class="wordmark" font-size="64" fill="#F7F6F2">JIMINY</text>
+  <text x="640" y="318" text-anchor="middle" class="subtitle" font-size="16" fill="#C9A84C">AGENT ACCOUNTABILITY</text>
+
+  <text x="640" y="360" text-anchor="middle" class="tagline" font-size="20" fill="#4A9B5F">SDK: clients for the independent evaluation layer</text>
+
+  <line x1="440" y1="388" x2="840" y2="388" stroke="#3A3D3B" stroke-width="1"/>
+
+  <text x="640" y="418" text-anchor="middle" class="mono" font-size="17" fill="#F7F6F2">$ pip install jiminy-sdk</text>
+  <text x="640" y="442" text-anchor="middle" class="mono" font-size="12" fill="#8A8D8B" letter-spacing="2">JIMINY.UK</text>
+</svg>
