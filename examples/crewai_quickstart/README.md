@@ -18,15 +18,9 @@ pip install -r requirements.txt
 
 ## 2. Get a self-serve API key
 
-Same self-serve signup as every other quickstart - see
-`docs/QUICKSTART_JS.md` step 2 (language-agnostic):
-
-```bash
-curl -X POST "$JIMINY_BASE_URL/accounts/self-serve-key" \
-  -H "Authorization: Bearer $FIREBASE_ID_TOKEN" \
-  -H "Content-Type: application/json" \
-  -d '{"org_name": "Your Org", "framework": "crewai"}'
-```
+Same self-serve signup as every other quickstart - sign up at
+[app.jiminy.uk/signup](https://app.jiminy.uk/signup) (see
+`docs/QUICKSTART.md` step 2 for the full flow):
 
 ```bash
 export OPENAI_API_KEY="..."

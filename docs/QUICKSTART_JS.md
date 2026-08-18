@@ -31,17 +31,9 @@ node -e "console.log(Object.keys(require('@jiminy/sdk')))"
 
 ## 2. Get a self-serve API key
 
-Sign up with Firebase Auth (any client SDK - this example assumes you
-already have a Firebase ID token from your app's login flow), then call:
-
-```bash
-curl -X POST "$JIMINY_BASE_URL/accounts/self-serve-key" \
-  -H "Authorization: Bearer $FIREBASE_ID_TOKEN" \
-  -H "Content-Type: application/json" \
-  -d '{"org_name": "Your Org", "framework": "langchain"}'
-```
-
-Response (shown once - there is no regenerate endpoint yet):
+Sign up at [app.jiminy.uk/signup](https://app.jiminy.uk/signup) (email/password
+or Google) - it signs you in with Firebase Auth and issues your Jiminy API
+key in the same step:
 
 ```json
 {
@@ -54,7 +46,13 @@ Response (shown once - there is no regenerate endpoint yet):
 ```
 
 Save both `tenant_id` and `api_key` - `tenant_id` is your `submitted_by`
-value for every trace you submit.
+value for every trace you submit. The key is shown once, with no regenerate
+endpoint yet.
+
+(If you already have a Firebase ID token from your own app's login flow,
+you can skip the web page and `POST $JIMINY_BASE_URL/accounts/self-serve-key`
+directly with `Authorization: Bearer $FIREBASE_ID_TOKEN` for the same
+response shape.)
 
 ```bash
 export JIMINY_API_KEY="the api_key from the response"
