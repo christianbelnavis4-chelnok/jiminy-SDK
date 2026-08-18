@@ -4,8 +4,12 @@
   "description": "Jiminy SDK — attested trace builder and evaluation client for the Jiminy accountability API",
   "main": "src/index.js",
   "types": "index.d.ts",
+  "bin": {
+    "jiminy": "bin/jiminy.js"
+  },
   "files": [
     "src",
+    "bin",
     "index.d.ts",
     "README.md"
   ],
