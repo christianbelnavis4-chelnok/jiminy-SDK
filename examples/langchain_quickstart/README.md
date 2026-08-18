@@ -17,16 +17,10 @@ and copy `adapters/langchain/` alongside this script.)
 
 ## 2. Get a self-serve API key
 
-No invite code, no waiting for approval - see
-`docs/QUICKSTART_JS.md` step 2 for the same flow (this example is Python,
-but key issuance is language-agnostic):
-
-```bash
-curl -X POST "$JIMINY_BASE_URL/accounts/self-serve-key" \
-  -H "Authorization: Bearer $FIREBASE_ID_TOKEN" \
-  -H "Content-Type: application/json" \
-  -d '{"org_name": "Your Org", "framework": "langchain"}'
-```
+No invite code, no waiting for approval - sign up at
+[app.jiminy.uk/signup](https://app.jiminy.uk/signup) (see
+`docs/QUICKSTART.md` step 2 for the full flow; key issuance is
+language-agnostic).
 
 Save the response's `api_key` and `tenant_id`:
 

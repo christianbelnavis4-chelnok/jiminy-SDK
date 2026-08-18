@@ -39,16 +39,7 @@ python -c "import jiminy_sdk; print('SDK ready')"
 
 ## 2. Get your credentials
 
-**Self-serve:** sign up with Firebase Auth (any client SDK - or the Identity Toolkit REST API directly if you don't have a Firebase-enabled app already), then exchange the ID token for a Jiminy key:
-
-```bash
-curl -X POST "$JIMINY_BASE_URL/accounts/self-serve-key" \
-  -H "Authorization: Bearer $FIREBASE_ID_TOKEN" \
-  -H "Content-Type: application/json" \
-  -d '{"org_name": "Your Org", "framework": "langchain"}'
-```
-
-Response (shown once - there is no regenerate endpoint yet, save both values):
+**Self-serve:** sign up at [app.jiminy.uk/signup](https://app.jiminy.uk/signup) (email/password or Google) - this signs you in with Firebase Auth and issues your Jiminy API key in the same step, no curl or existing Firebase app required:
 
 ```json
 {
@@ -59,6 +50,10 @@ Response (shown once - there is no regenerate endpoint yet, save both values):
   "note": "Store this key now - it is shown once and cannot be retrieved again."
 }
 ```
+
+The key is shown once on that page - there is no regenerate endpoint yet, so save both `tenant_id` and `api_key` before navigating away.
+
+(If you already have a Firebase ID token from your own app's login flow, you can skip the web page and call `POST $JIMINY_BASE_URL/accounts/self-serve-key` directly with `Authorization: Bearer $FIREBASE_ID_TOKEN` - same response shape as above. This is a shortcut for people already using Firebase Auth elsewhere, not the primary path.)
 
 Self-serve accounts have an **open `agent_owner` scope** - no pre-registration needed, so `JIMINY_AGENT_OWNER` can be any name you choose for the agent you're evaluating (e.g. your own product's name).
 
