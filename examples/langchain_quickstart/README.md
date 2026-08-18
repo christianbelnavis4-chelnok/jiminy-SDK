@@ -1,7 +1,7 @@
 # Jiminy + LangChain quickstart
 
 Clone this directory, get a self-serve API key, and see an evaluated
-LangChain run in under 5 minutes — no LLM API key required, the "agent"
+LangChain run in under 5 minutes - no LLM API key required, the "agent"
 here is a stubbed tool-using chain so the example runs standalone.
 
 ## 1. Install
@@ -10,14 +10,14 @@ here is a stubbed tool-using chain so the example runs standalone.
 pip install -r requirements.txt
 ```
 
-(This also needs the Jiminy repo itself on your path — if you're running
+(This also needs the Jiminy repo itself on your path - if you're running
 from a clone of `jiminy-sdk`, as here, that's automatic.
 Running this example outside the repo? `pip install jiminy-sdk`
 and copy `adapters/langchain/` alongside this script.)
 
 ## 2. Get a self-serve API key
 
-No invite code, no waiting for approval — see
+No invite code, no waiting for approval - see
 `docs/QUICKSTART_JS.md` step 2 for the same flow (this example is Python,
 but key issuance is language-agnostic):
 
@@ -53,7 +53,7 @@ Jiminy evaluation (langchain-<run-id>):
   Judge model: claude-sonnet-4-6
 ```
 
-No second call, no manual trace-building — `agent.py` wires up
+No second call, no manual trace-building - `agent.py` wires up
 `adapters.langchain.create_jiminy_callback_handler()` once, and every
 chain invocation that goes through it (real `AgentExecutor`, LangGraph
 graph, or the plain `RunnableLambda` used here) is evaluated
@@ -64,7 +64,7 @@ for how tool calls become `Step`s and what triggers submission.
 
 `traces/` has two fixture traces: one clean, one with a deliberate scope
 violation (the agent changes a user's notification preferences when only
-asked for the weather — see `traces/scope_violation.json`). Copy
+asked for the weather - see `traces/scope_violation.json`). Copy
 `ci-workflow-example.yml` to `.github/workflows/` in your own repo (adjust
 the path/name), set `JIMINY_API_KEY` as a repo secret and
 `JIMINY_BASE_URL` as a repo variable, and every PR will evaluate both:
@@ -77,13 +77,13 @@ python ../../scripts/ci_evaluate.py \
   --fail-on rejected
 ```
 
-Try it locally first — the scope-violation fixture should come back
+Try it locally first - the scope-violation fixture should come back
 `rejected` and exit non-zero; the clean one should come back `approved`.
 
 ## Next steps
 
-- `docs/QUICKSTART.md` / `docs/QUICKSTART_JS.md` — the fuller REST/SDK
+- `docs/QUICKSTART.md` / `docs/QUICKSTART_JS.md` - the fuller REST/SDK
   walkthroughs (calibration mode, reading evaluation history, attestation).
 - Swap `run_agent()` in `agent.py` for a real `AgentExecutor` or LangGraph
-  graph — the Jiminy wiring doesn't change, since it hooks into LangChain's
+  graph - the Jiminy wiring doesn't change, since it hooks into LangChain's
   callback system, not your specific agent implementation.

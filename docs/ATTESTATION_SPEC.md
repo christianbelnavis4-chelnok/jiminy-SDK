@@ -60,16 +60,16 @@ Where `step_payload[i]` is a dict with these exact keys (no others):
 {
     "step_id": step.step_id,          # int
     "tool":    step.tool,             # str
-    "input":   canonical(step.input), # str — canonical JSON of the input value
-    "output":  canonical(step.output),# str — canonical JSON of the output value
-    "reasoning": step.reasoning or "",# str — empty string when reasoning is None
-    "prev_hash": prev_hash,           # str — step_hash[i-1], or GENESIS_HASH for i=0
+    "input":   canonical(step.input), # str - canonical JSON of the input value
+    "output":  canonical(step.output),# str - canonical JSON of the output value
+    "reasoning": step.reasoning or "",# str - empty string when reasoning is None
+    "prev_hash": prev_hash,           # str - step_hash[i-1], or GENESIS_HASH for i=0
 }
 ```
 
 `GENESIS_HASH = "0" * 64` (64 zero characters).
 
-The entire `step_payload` dict is itself canonicalised before being encoded to UTF-8 bytes for the HMAC call. This means the values of `input` and `output` inside the payload are the canonical JSON *strings* — i.e. double-canonicalised: first the value is serialised to a JSON string, then that string appears as a JSON string value inside the payload dict.
+The entire `step_payload` dict is itself canonicalised before being encoded to UTF-8 bytes for the HMAC call. This means the values of `input` and `output` inside the payload are the canonical JSON *strings* - i.e. double-canonicalised: first the value is serialised to a JSON string, then that string appears as a JSON string value inside the payload dict.
 
 ---
 
@@ -87,7 +87,7 @@ Where `root_payload` is:
 {
     "trace_id":    trace.trace_id,    # str
     "agent_id":    trace.agent_id,    # str
-    "step_hashes": step_hashes,       # list[str] — all step hashes in order
+    "step_hashes": step_hashes,       # list[str] - all step hashes in order
 }
 ```
 
