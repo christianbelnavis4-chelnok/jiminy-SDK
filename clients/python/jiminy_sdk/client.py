@@ -26,9 +26,12 @@ Usage::
 from __future__ import annotations
 
 import json
+import os
 import urllib.error
 import urllib.request
 from typing import Any
+
+from jiminy_sdk.auth import DEFAULT_BASE_URL, load_credentials
 
 
 class JiminyAPIError(Exception):
@@ -51,9 +54,32 @@ class Client:
     One call to build a self-serve or design-partner client:
 
         client = Client(api_key="...", base_url="https://jiminy-api-...")
+
+    Both arguments are optional. If omitted, `api_key` falls back to the
+    `JIMINY_API_KEY` env var, then to credentials saved by `jiminy auth
+    login` (see jiminy_sdk.auth); `base_url` falls back to `JIMINY_BASE_URL`,
+    then the saved credentials' base_url, then the public API's default.
+    So after running `jiminy auth login` once, plain `Client()` works with
+    no arguments at all.
     """
 
-    def __init__(self, *, api_key: str, base_url: str, timeout: float = 30.0) -> None:
+    def __init__(
+        self, *, api_key: str | None = None, base_url: str | None = None, timeout: float = 30.0
+    ) -> None:
+        credentials: dict[str, Any] = {}
+        if api_key is None or base_url is None:
+            credentials = load_credentials() or {}
+
+        api_key = api_key or os.environ.get("JIMINY_API_KEY") or credentials.get("api_key")
+        if api_key is None:
+            raise ValueError(
+                "No Jiminy API key found. Pass api_key=..., set JIMINY_API_KEY, "
+                "or run `jiminy auth login`."
+            )
+        base_url = (
+            base_url or os.environ.get("JIMINY_BASE_URL") or credentials.get("base_url") or DEFAULT_BASE_URL
+        )
+
         self._api_key = api_key
         self._base_url = base_url.rstrip("/")
         self._timeout = timeout

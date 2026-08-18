@@ -21,6 +21,9 @@ license = { text = "Apache-2.0" }
 # Jiminy platform, judge engine, and scoring rubric are a separate,
 # proprietary codebase not published here.
 
+[project.scripts]
+jiminy = "jiminy_sdk.cli:main"
+
 [project.urls]
 Homepage = "https://jiminy.uk"
 Repository = "https://github.com/christianbelnavis4-chelnok/jiminy-sdk"
