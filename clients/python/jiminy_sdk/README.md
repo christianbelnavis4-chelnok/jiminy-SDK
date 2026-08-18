@@ -1,7 +1,7 @@
 # jiminy-sdk
 
 Attested trace builder and calibration tools for the [Jiminy](https://jiminy.uk)
-AI agent evaluation API. Zero runtime dependencies — built on the Python
+AI agent evaluation API. Zero runtime dependencies - built on the Python
 standard library only.
 
 ```bash
@@ -10,17 +10,17 @@ pip install jiminy-sdk
 
 ## What's in this package
 
-- **`TraceBuilder`** — construct attested `DecisionTrace` payloads. Each
+- **`TraceBuilder`** - construct attested `DecisionTrace` payloads. Each
   step is signed with HMAC-SHA256, chained to the previous step's hash, so
   the server can cryptographically confirm the trace wasn't modified
   between emission and evaluation.
-- **`CalibrationSession`** — wraps `TraceBuilder` to build and submit a
+- **`CalibrationSession`** - wraps `TraceBuilder` to build and submit a
   trace in calibration mode: a diagnostic run that isn't persisted and
   doesn't count against quota, returning a per-criterion report to guide
   integration before going live.
-- **`Client`** — a minimal synchronous wrapper around `POST /evaluate`.
+- **`Client`** - a minimal synchronous wrapper around `POST /evaluate`.
   For anything beyond simple `evaluate()` calls (custom retries, async,
-  connection pooling), bring your own HTTP client — the API is plain
+  connection pooling), bring your own HTTP client - the API is plain
   JSON over HTTPS.
 
 ## Usage
@@ -56,7 +56,7 @@ print(result["overall_verdict"])
 
 The HMAC key must match the value configured as `REDACTED_SECRET_NAME` on the
 server for your tenant. Traces built without `TraceBuilder` (or with the
-wrong key) still evaluate — just with `trace_integrity` set to `"broken"`
+wrong key) still evaluate - just with `trace_integrity` set to `"broken"`
 or `"unverified"` instead of `"verified"`.
 
 ## Full documentation
@@ -66,5 +66,5 @@ in this repository.
 
 ## License
 
-Apache License 2.0 — see [LICENSE](LICENSE). This license covers this SDK
+Apache License 2.0 - see [LICENSE](LICENSE). This license covers this SDK
 package only, not the wider Jiminy API/product codebase.

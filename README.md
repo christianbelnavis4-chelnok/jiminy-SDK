@@ -5,7 +5,7 @@
 [![PyPI](https://img.shields.io/pypi/v/jiminy-sdk)](https://pypi.org/project/jiminy-sdk/)
 [![Python](https://img.shields.io/pypi/pyversions/jiminy-sdk)](https://pypi.org/project/jiminy-sdk/)
 
-# Jiminy SDK — clients for the Independent AI Agent Accountability Layer
+# Jiminy SDK - clients for the Independent AI Agent Accountability Layer
 
 Jiminy evaluates AI agent decision traces against six accountability criteria and produces governance reports suitable for compliance review.
 
@@ -17,7 +17,7 @@ The judge engine, scoring rubric, regulatory-mapping logic, calibration methodol
 
 ## What is Jiminy?
 
-Jiminy acts as an independent accountability layer between organisations that **own** AI agents and organisations that **evaluate** them. An evaluator submits a `DecisionTrace` — a structured log of what an agent did and why — and Jiminy uses Claude as an impartial judge to score the trace against six criteria.
+Jiminy acts as an independent accountability layer between organisations that **own** AI agents and organisations that **evaluate** them. An evaluator submits a `DecisionTrace` - a structured log of what an agent did and why - and Jiminy uses Claude as an impartial judge to score the trace against six criteria.
 
 The result is an `EvaluationResult` containing a per-criterion finding (PASS / CONCERN / FAIL), an attribution, an evidence extract, and an overall verdict.
 
@@ -122,10 +122,10 @@ See [`docs/QUICKSTART.md`](docs/QUICKSTART.md) (Python/REST) and [`docs/QUICKSTA
 
 | Path | What it is |
 |------|-----------|
-| `clients/python/jiminy_sdk/` | The `jiminy-sdk` PyPI package — `TraceBuilder`, `Client`, `CalibrationSession`. Zero runtime dependencies. |
-| `clients/js/` | `@jiminy/sdk` — the JS/TS equivalent, mirroring the Python SDK. |
+| `clients/python/jiminy_sdk/` | The `jiminy-sdk` PyPI package - `TraceBuilder`, `Client`, `CalibrationSession`. Zero runtime dependencies. |
+| `clients/js/` | `@jiminy/sdk` - the JS/TS equivalent, mirroring the Python SDK. |
 | `adapters/` | Drop-in adapters that build a `DecisionTrace` from a LangChain, CrewAI, LangSmith, OpenAI Agents, or OpenTelemetry run. |
-| `validator/` | Standalone `DecisionTrace` schema validator — useful for checking trace fixtures before submission. |
+| `validator/` | Standalone `DecisionTrace` schema validator - useful for checking trace fixtures before submission. |
 | `schema/trace_schema.py` | The `DecisionTrace`/`Step` pydantic models shared by the adapters and validator. |
 | `scripts/ci_evaluate.py` + `.github/actions/evaluate/` | A reusable CI action: evaluate trace fixtures on every PR and fail the build on a bad verdict. Works with the Python and JS SDKs. |
 | `examples/` | Runnable end-to-end examples, including a LangChain and CrewAI quickstart with CI gating wired up. |
@@ -133,11 +133,11 @@ See [`docs/QUICKSTART.md`](docs/QUICKSTART.md) (Python/REST) and [`docs/QUICKSTA
 
 ## CLI-style CI gating
 
-Add trace fixtures to your repo and gate PRs on their verdict without writing any code — see [`.github/actions/evaluate/action.yml`](.github/actions/evaluate/action.yml) and the worked examples in `examples/*/ci-workflow-example.yml`.
+Add trace fixtures to your repo and gate PRs on their verdict without writing any code - see [`.github/actions/evaluate/action.yml`](.github/actions/evaluate/action.yml) and the worked examples in `examples/*/ci-workflow-example.yml`.
 
 ## Authentication
 
-All evaluation endpoints require an `X-API-Key` header. Keys are issued via self-serve signup or by the Jiminy team for design partners — see [`docs/QUICKSTART.md`](docs/QUICKSTART.md).
+All evaluation endpoints require an `X-API-Key` header. Keys are issued via self-serve signup or by the Jiminy team for design partners - see [`docs/QUICKSTART.md`](docs/QUICKSTART.md).
 
 - Missing header → **401 Unauthorized**
 - Wrong key → **403 Forbidden**
@@ -153,4 +153,4 @@ See [`CONTRIBUTING.md`](CONTRIBUTING.md). The quick start demo GIF above is rege
 
 ## License
 
-Apache License 2.0 — see [LICENSE](LICENSE). This license covers the SDKs, adapters, and tooling in this repo; it does not cover the hosted Jiminy platform or judge engine, which are separate proprietary systems.
+Apache License 2.0 - see [LICENSE](LICENSE). This license covers the SDKs, adapters, and tooling in this repo; it does not cover the hosted Jiminy platform or judge engine, which are separate proprietary systems.

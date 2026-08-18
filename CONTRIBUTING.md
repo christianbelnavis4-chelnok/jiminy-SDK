@@ -26,7 +26,7 @@ pip install -e ".[dev,langchain,crewai]"
 python -m pytest tests/ -q
 ```
 
-CI also runs lint — worth running locally before opening a PR:
+CI also runs lint - worth running locally before opening a PR:
 
 ```bash
 python -m ruff check .
@@ -37,7 +37,7 @@ python -m ruff check .
 - Keep PRs scoped to one change. Unrelated cleanup makes review harder, not
   easier.
 - Add or update tests for behaviour you change.
-- Match existing code style — don't introduce new patterns for something
+- Match existing code style - don't introduce new patterns for something
   the codebase already has a convention for.
 - Describe *why* the change is needed in the PR description, not just what
   changed.
