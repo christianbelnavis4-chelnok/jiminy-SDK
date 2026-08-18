@@ -57,8 +57,10 @@ export class TraceBuilder {
 }
 
 export interface ClientOptions {
-  apiKey: string;
-  baseUrl: string;
+  /** Falls back to JIMINY_API_KEY, then saved `jiminy auth login` credentials. */
+  apiKey?: string;
+  /** Falls back to JIMINY_BASE_URL, then saved credentials, then the public API default. */
+  baseUrl?: string;
   timeoutMs?: number;
 }
 
@@ -74,8 +76,28 @@ export class JiminyAPIError extends Error {
 }
 
 export class Client {
-  constructor(options: ClientOptions);
+  constructor(options?: ClientOptions);
   evaluate(trace: DecisionTrace | Record<string, unknown>, options?: EvaluateOptions): Promise<Record<string, unknown>>;
 }
 
 export function canonical(obj: unknown): string;
+
+export interface Credentials {
+  api_key: string;
+  tenant_id: string;
+  tier?: string;
+  org_name?: string;
+  base_url: string;
+}
+
+export interface LoginOptions {
+  baseUrl?: string;
+  orgName?: string;
+  openBrowser?: (url: string) => boolean;
+  print?: (line: string) => void;
+  maxWaitMs?: number;
+}
+
+export class DeviceAuthError extends Error {}
+
+export function login(options?: LoginOptions): Promise<Credentials>;

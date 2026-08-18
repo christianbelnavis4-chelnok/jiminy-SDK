@@ -16,6 +16,8 @@
 
 'use strict';
 
+const { DEFAULT_BASE_URL, loadCredentials } = require('./auth');
+
 class JiminyAPIError extends Error {
   constructor(status, body) {
     const detail = body && typeof body === 'object' ? body.detail : body;
@@ -27,7 +29,28 @@ class JiminyAPIError extends Error {
 }
 
 class Client {
-  constructor({ apiKey, baseUrl, timeoutMs = 30000 }) {
+  /**
+   * Both apiKey and baseUrl are optional. If omitted, apiKey falls back to
+   * the JIMINY_API_KEY env var, then to credentials saved by `jiminy auth
+   * login` (see ./auth.js); baseUrl falls back to JIMINY_BASE_URL, then the
+   * saved credentials' base_url, then the public API's default. So after
+   * running `jiminy auth login` once, `new Client()` works with no
+   * arguments at all.
+   */
+  constructor({ apiKey, baseUrl, timeoutMs = 30000 } = {}) {
+    let credentials = null;
+    if (!apiKey || !baseUrl) {
+      credentials = loadCredentials() || {};
+    }
+
+    apiKey = apiKey || process.env.JIMINY_API_KEY || credentials?.api_key;
+    if (!apiKey) {
+      throw new Error(
+        'No Jiminy API key found. Pass apiKey, set JIMINY_API_KEY, or run `jiminy auth login`.'
+      );
+    }
+    baseUrl = baseUrl || process.env.JIMINY_BASE_URL || credentials?.base_url || DEFAULT_BASE_URL;
+
     this._apiKey = apiKey;
     this._baseUrl = baseUrl.replace(/\/+$/, '');
     this._timeoutMs = timeoutMs;
