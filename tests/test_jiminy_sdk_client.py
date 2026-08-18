@@ -130,3 +130,47 @@ class TestEvaluate:
         client.evaluate(_trace())
 
         assert captured["url"] == "https://api.example.com/evaluate"
+
+
+class TestCredentialFallback:
+    def test_uses_env_var_and_default_base_url_when_omitted(self, monkeypatch, tmp_path):
+        monkeypatch.setenv("JIMINY_CREDENTIALS_PATH", str(tmp_path / "credentials.json"))
+        monkeypatch.setenv("JIMINY_API_KEY", "env-key")
+        monkeypatch.delenv("JIMINY_BASE_URL", raising=False)
+
+        client = Client()
+
+        assert client._api_key == "env-key"
+        assert client._base_url == "https://jiminy-api-REDACTED_PROJECT_NUMBER.europe-west2.run.app"
+
+    def test_uses_saved_credentials_when_no_key_and_no_env_var(self, monkeypatch, tmp_path):
+        from jiminy_sdk.auth import save_credentials
+
+        monkeypatch.setenv("JIMINY_CREDENTIALS_PATH", str(tmp_path / "credentials.json"))
+        monkeypatch.delenv("JIMINY_API_KEY", raising=False)
+        monkeypatch.delenv("JIMINY_BASE_URL", raising=False)
+        save_credentials({"api_key": "cli-key", "tenant_id": "t", "base_url": "https://saved.example.com"})
+
+        client = Client()
+
+        assert client._api_key == "cli-key"
+        assert client._base_url == "https://saved.example.com"
+
+    def test_raises_clear_error_when_no_key_anywhere(self, monkeypatch, tmp_path):
+        monkeypatch.setenv("JIMINY_CREDENTIALS_PATH", str(tmp_path / "credentials.json"))
+        monkeypatch.delenv("JIMINY_API_KEY", raising=False)
+
+        with pytest.raises(ValueError, match="jiminy auth login"):
+            Client()
+
+    def test_explicit_args_take_priority_over_env_and_credentials(self, monkeypatch, tmp_path):
+        from jiminy_sdk.auth import save_credentials
+
+        monkeypatch.setenv("JIMINY_CREDENTIALS_PATH", str(tmp_path / "credentials.json"))
+        monkeypatch.setenv("JIMINY_API_KEY", "env-key")
+        save_credentials({"api_key": "cli-key", "tenant_id": "t", "base_url": "https://saved.example.com"})
+
+        client = Client(api_key="explicit-key", base_url="https://explicit.example.com")
+
+        assert client._api_key == "explicit-key"
+        assert client._base_url == "https://explicit.example.com"
