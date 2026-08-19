@@ -62,12 +62,12 @@ Domain profiles (`health_insurance_prior_auth`, `financial_trading`, `hr_recruit
 
 | Resource | URL |
 |----------|-----|
-| API | `https://jiminy-api-287920422190.europe-west2.run.app` |
+| API | `https://api.jiminy.uk` |
 | Dashboard | `https://app.jiminy.uk` / `https://app-jiminy-uk.web.app` |
 | Website | `https://jiminy.uk` |
-| Swagger UI | `https://jiminy-api-287920422190.europe-west2.run.app/docs` |
-| ReDoc | `https://jiminy-api-287920422190.europe-west2.run.app/redoc` |
-| OpenAPI schema | `https://jiminy-api-287920422190.europe-west2.run.app/openapi.json` |
+| Swagger UI | `https://api.jiminy.uk/docs` |
+| ReDoc | `https://api.jiminy.uk/redoc` |
+| OpenAPI schema | `https://api.jiminy.uk/openapi.json` |
 
 ## Getting a test API key
 
@@ -108,7 +108,7 @@ builder.finalize("Approved. Auth reference: PA-...")
 
 trace = builder.build()
 
-client = Client(api_key="your-api-key", base_url="https://jiminy-api-287920422190.europe-west2.run.app")
+client = Client(api_key="your-api-key", base_url="https://api.jiminy.uk")
 result = client.evaluate(trace)
 print(result["overall_verdict"])
 ```
