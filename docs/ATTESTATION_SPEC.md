@@ -18,7 +18,7 @@ Attestation does not prove that evidence is complete. It proves that whatever wa
 
 - **Step hashes:** HMAC-SHA256
 - **Root hash:** HMAC-SHA256
-- **Key:** per-tenant, hex-encoded, stored in GCP Secret Manager under `REDACTED_SECRET_NAME`
+- **Key:** per-tenant, hex-encoded, provisioned and stored server-side
 - **Encoding:** lowercase hexadecimal (64 characters per digest)
 
 No external dependencies beyond the Python standard library `hmac` and `hashlib` modules.
