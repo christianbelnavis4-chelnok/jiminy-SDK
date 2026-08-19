@@ -21,7 +21,7 @@ import json
 import os
 import subprocess
 import sys
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 from anthropic import Anthropic
 
@@ -162,7 +162,7 @@ def is_rate_limited(author: str) -> bool:
     on any error here, log it and treat the author as not rate-limited
     rather than crashing the whole run.
     """
-    since = (datetime.now(timezone.utc) - timedelta(hours=RATE_LIMIT_WINDOW_HOURS)).strftime(
+    since = (datetime.now(UTC) - timedelta(hours=RATE_LIMIT_WINDOW_HOURS)).strftime(
         "%Y-%m-%dT%H:%M:%SZ"
     )
     try:
