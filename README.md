@@ -1,6 +1,6 @@
 ![Jiminy SDK](./assets/jiminy-sdk-hero.svg)
 
-[![CI](https://img.shields.io/github/actions/workflow/status/jiminy/jiminy-sdk/ci.yml)](https://github.com/jiminy/jiminy-sdk/actions)
+[![CI](https://img.shields.io/github/actions/workflow/status/christianbelnavis4-chelnok/jiminy-sdk/ci.yml)](https://github.com/christianbelnavis4-chelnok/jiminy-sdk/actions)
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue)](./LICENSE)
 [![PyPI](https://img.shields.io/pypi/v/jiminy-sdk)](https://pypi.org/project/jiminy-sdk/)
 [![Python](https://img.shields.io/pypi/pyversions/jiminy-sdk)](https://pypi.org/project/jiminy-sdk/)
