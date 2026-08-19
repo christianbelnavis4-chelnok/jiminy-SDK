@@ -16,7 +16,7 @@ from jiminy_sdk import Client, TraceBuilder
 API_KEY = os.environ.get("JIMINY_API_KEY")
 BASE_URL = os.environ.get(
     "JIMINY_BASE_URL",
-    "https://jiminy-api-REDACTED_PROJECT_NUMBER.europe-west2.run.app",
+    "https://api.jiminy.uk",
 )
 
 if not API_KEY:
