@@ -9,14 +9,14 @@ optionally, JIMINY_BASE_URL to be set in the environment.
 
 import os
 import sys
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from jiminy_sdk import Client, TraceBuilder
 
 API_KEY = os.environ.get("JIMINY_API_KEY")
 BASE_URL = os.environ.get(
     "JIMINY_BASE_URL",
-    "https://jiminy-api-REDACTED_PROJECT_NUMBER.europe-west2.run.app",
+    "https://api.jiminy.uk",
 )
 
 if not API_KEY:
@@ -31,7 +31,7 @@ builder = TraceBuilder(
     agent_owner="Acme Insurance",
     submitted_by="Acme Compliance",
     task_description="Evaluate prior authorisation request",
-    timestamp=datetime.now(tz=timezone.utc),
+    timestamp=datetime.now(tz=UTC),
     domain_profile="health_insurance_prior_auth",
     hmac_key=os.environ.get("JIMINY_HMAC_KEY", "demo-hmac-key"),
 )
