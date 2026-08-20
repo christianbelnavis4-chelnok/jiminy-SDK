@@ -1,4 +1,8 @@
-![Jiminy SDK](./assets/jiminy-sdk-hero.svg)
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="./assets/jiminy-sdk-logo-dark.svg">
+  <source media="(prefers-color-scheme: light)" srcset="./assets/jiminy-sdk-logo-light.svg">
+  <img alt="Jiminy" src="./assets/jiminy-sdk-logo-light.svg" width="360">
+</picture>
 
 [![CI](https://img.shields.io/github/actions/workflow/status/christianbelnavis4-chelnok/jiminy-sdk/ci.yml)](https://github.com/christianbelnavis4-chelnok/jiminy-sdk/actions)
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue)](./LICENSE)
