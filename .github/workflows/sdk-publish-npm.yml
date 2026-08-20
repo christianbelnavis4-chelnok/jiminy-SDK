@@ -1,0 +1,61 @@
+name: Publish @jiminy/sdk to npm
+
+# Public npm distribution for clients/js (the hand-written, dependency-free
+# developer SDK -- TraceBuilder, Client, mirroring the Python jiminy-sdk).
+#
+# Uses npm's Trusted Publisher flow (OIDC) rather than a stored token: no
+# NPM_TOKEN secret to create, rotate, or leak. Requires a one-time Trusted
+# Publisher link on the npmjs.com package settings page (Settings ->
+# Trusted Publishers, provider "GitHub Actions", pointing at this
+# repo/workflow) before the first tag push will actually publish anything --
+# this workflow will fail cleanly (npm rejects the OIDC claim) until that's
+# done, not silently no-op. The package must already exist on npm once
+# (`npm publish --access public` from a maintainer's machine, one time) for
+# Trusted Publishers to be configurable against it.
+#
+# Triggered by pushing a version tag:
+#   git tag jiminy-sdk-js-v<version> && git push origin jiminy-sdk-js-v<version>
+# <version> must match the `version` field in clients/js/package.json
+# exactly, or npm will reject the publish as a version mismatch.
+
+on:
+  push:
+    tags:
+      - "jiminy-sdk-js-v*"
+
+permissions:
+  contents: read
+  id-token: write # required for npm Trusted Publishing (OIDC)
+
+jobs:
+  publish:
+    name: Publish to npm
+    runs-on: ubuntu-latest
+    environment: npm
+    defaults:
+      run:
+        working-directory: clients/js
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          registry-url: "https://registry.npmjs.org"
+
+      - name: Verify tag matches package.json version
+        run: |
+          PKG_VERSION=$(node -p "require('./package.json').version")
+          TAG_VERSION="${GITHUB_REF_NAME#jiminy-sdk-js-v}"
+          if [ "$PKG_VERSION" != "$TAG_VERSION" ]; then
+            echo "Tag jiminy-sdk-js-v$TAG_VERSION does not match package.json version $PKG_VERSION"
+            exit 1
+          fi
+
+      - name: Test
+        run: npm test
+
+      - name: Publish to npm
+        run: npm publish --access public --provenance
