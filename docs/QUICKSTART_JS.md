@@ -24,7 +24,7 @@ npm install "github:christianbelnavis4-chelnok/jiminy-sdk#path:clients/js"
 Verify the install:
 
 ```bash
-node -e "console.log(Object.keys(require('@jiminy/sdk')))"
+node -e "console.log(Object.keys(require('@christianbelnavis4/jiminy-sdk')))"
 ```
 
 ---
@@ -73,7 +73,7 @@ rate limit .
 ## 3. Build and submit your first trace
 
 ```js
-const { Client, TraceBuilder } = require('@jiminy/sdk');
+const { Client, TraceBuilder } = require('@christianbelnavis4/jiminy-sdk');
 
 const trace = new TraceBuilder({
   traceId: `first-trace-${Date.now()}`,
