@@ -1,5 +1,5 @@
 {
-  "name": "@christianbelnavis4/jiminy-sdk",
+  "name": "@ctbelnavis4/jiminy-sdk",
   "version": "0.1.0",
   "description": "Jiminy SDK — attested trace builder and evaluation client for the Jiminy accountability API",
   "main": "src/index.js",
