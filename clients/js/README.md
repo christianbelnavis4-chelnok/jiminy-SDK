@@ -1,4 +1,4 @@
-# @jiminy/sdk
+# @christianbelnavis4/jiminy-sdk
 
 TypeScript/JavaScript SDK for the [Jiminy](https://jiminy.uk) AI agent
 accountability API — build attested traces and submit them for evaluation.
@@ -19,7 +19,7 @@ npm install "github:christianbelnavis4-chelnok/jiminy-sdk#path:clients/js"
 ## Usage
 
 ```js
-const { Client, TraceBuilder } = require('@jiminy/sdk');
+const { Client, TraceBuilder } = require('@christianbelnavis4/jiminy-sdk');
 
 const trace = new TraceBuilder({
   traceId: 'trace-001',
