@@ -10,6 +10,14 @@ on:
   push:
     branches: [main]
 
+# pull-requests: write lets the action's comment-on-pr feature (default:
+# true) post/update a PR comment with the verdict table. Omit this and the
+# comment silently degrades to a warning in the job log instead — the
+# evaluation itself still runs and still gates the build either way.
+permissions:
+  contents: read
+  pull-requests: write
+
 jobs:
   jiminy-evaluate:
     runs-on: ubuntu-latest
