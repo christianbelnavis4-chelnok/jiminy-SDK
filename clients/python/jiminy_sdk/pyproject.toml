@@ -1,6 +1,6 @@
 [project]
 name = "jiminy-sdk"
-version = "0.2.1"
+version = "0.3.0"
 description = "Jiminy SDK — attested trace builder and calibration tools for the Jiminy evaluation API"
 readme = "README.md"
 requires-python = ">=3.11"
@@ -26,6 +26,9 @@ Homepage = "https://jiminy.uk"
 Repository = "https://github.com/christianbelnavis4-chelnok/jiminy-sdk"
 Documentation = "https://github.com/christianbelnavis4-chelnok/jiminy-sdk/blob/main/docs/QUICKSTART.md"
 "Bug Tracker" = "https://github.com/christianbelnavis4-chelnok/jiminy-sdk/issues"
+
+[project.scripts]
+jiminy = "jiminy_sdk.cli:main"
 
 [build-system]
 requires = ["setuptools>=68"]
