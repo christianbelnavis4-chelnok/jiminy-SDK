@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """CI hook: evaluate a set of DecisionTrace fixtures against Jiminy and fail
-the build on a bad verdict.
+the build on a bad verdict (docs/SELF_SERVE_SDK_SPEC.md, Sprint 2).
 
 Intended use: a repo that owns an agent checks in a handful of DecisionTrace
 JSON fixtures (either hand-written or captured from real runs) representing
@@ -30,6 +30,9 @@ import glob
 import json
 import os
 import sys
+import urllib.error
+import urllib.request
+from typing import Any
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.insert(
@@ -40,6 +43,12 @@ sys.path.insert(
 from jiminy_sdk import Client, JiminyAPIError  # noqa: E402
 
 _VERDICT_SEVERITY = {"approved": 0, "flagged": 1, "rejected": 2}
+_VERDICT_BADGES = {"approved": "✅", "flagged": "⚠️", "rejected": "❌", "ERROR": "🛑"}
+
+# Zero-width marker hidden in the comment body so a later run can find and
+# update its own previous comment instead of piling up a new one on every
+# push to the same PR.
+_PR_COMMENT_MARKER = "<!-- jiminy-ci-evaluate -->"
 
 
 def _load_traces(traces_glob: str) -> list[tuple[str, dict]]:
@@ -102,25 +111,120 @@ def run(
     return exit_code, rows
 
 
-def write_summary(rows: list[dict], summary_path: str | None) -> None:
-    if not rows:
-        return
+def render_markdown_table(rows: list[dict]) -> str:
+    """Shared table renderer for the Step Summary and the PR comment, so the
+    two surfaces never drift into showing different information."""
     lines = ["| Trace | Verdict | Failed criteria |", "|---|---|---|"]
     for row in rows:
         verdict = row["verdict"]
-        badge = {"approved": "✅", "flagged": "⚠️", "rejected": "❌", "ERROR": "🛑"}.get(
-            verdict, "?"
-        )
+        badge = _VERDICT_BADGES.get(verdict, "?")
         criteria = ", ".join(row.get("failed_criteria") or []) or "—"
         lines.append(f"| `{row['trace_id']}` | {badge} {verdict} | {criteria} |")
-    summary = "\n".join(lines) + "\n"
+    return "\n".join(lines) + "\n"
 
+
+def write_summary(rows: list[dict], summary_path: str | None) -> None:
+    if not rows:
+        return
+    summary = render_markdown_table(rows)
     target = summary_path or os.environ.get("GITHUB_STEP_SUMMARY")
     if target:
         with open(target, "a") as f:
             f.write("## Jiminy evaluation results\n\n" + summary)
     else:
         print(summary)
+
+
+def _github_request(
+    method: str, url: str, token: str, body: dict | None = None
+) -> Any:
+    """Thin wrapper around urllib for the GitHub REST API, isolated into its
+    own function so tests can patch just the network boundary."""
+    data = json.dumps(body).encode("utf-8") if body is not None else None
+    request = urllib.request.Request(
+        url,
+        data=data,
+        method=method,
+        headers={
+            "Authorization": f"Bearer {token}",
+            "Accept": "application/vnd.github+json",
+            "X-GitHub-Api-Version": "2022-11-28",
+        },
+    )
+    with urllib.request.urlopen(request, timeout=15) as response:
+        raw = response.read()
+        return json.loads(raw) if raw else None
+
+
+def find_pr_number(event_path: str | None = None) -> int | None:
+    """Read the PR number from the GitHub Actions event payload.
+
+    Returns None on any non-pull_request event (e.g. a push to main), or if
+    no event payload is available (e.g. running this script locally) — not
+    an error, just nothing to comment on.
+    """
+    event_path = event_path or os.environ.get("GITHUB_EVENT_PATH")
+    if not event_path or not os.path.exists(event_path):
+        return None
+    with open(event_path) as f:
+        event = json.load(f)
+    pr = event.get("pull_request")
+    return pr.get("number") if pr else None
+
+
+def post_or_update_pr_comment(
+    rows: list[dict], *, github_token: str, repo: str, pr_number: int
+) -> None:
+    """Post the results table as a PR comment, updating a previous run's own
+    comment in place (matched via _PR_COMMENT_MARKER) rather than piling up
+    a new comment on every push to the same PR.
+
+    Never raises. A failed post — most commonly a PR from a fork, where
+    GITHUB_TOKEN is always read-only regardless of the repo's own permission
+    settings — is reported as a warning, not a build failure: the
+    evaluation itself already ran and already gates the build via the
+    script's exit code, so a comment that can't post shouldn't take the
+    build down with it.
+    """
+    if not rows:
+        return
+    body = f"{_PR_COMMENT_MARKER}\n## Jiminy evaluation results\n\n{render_markdown_table(rows)}"
+    api_base = f"https://api.github.com/repos/{repo}"
+    try:
+        comments = (
+            _github_request(
+                "GET", f"{api_base}/issues/{pr_number}/comments", github_token
+            )
+            or []
+        )
+        existing = next(
+            (c for c in comments if _PR_COMMENT_MARKER in (c.get("body") or "")),
+            None,
+        )
+        if existing:
+            _github_request(
+                "PATCH",
+                f"{api_base}/issues/comments/{existing['id']}",
+                github_token,
+                {"body": body},
+            )
+        else:
+            _github_request(
+                "POST",
+                f"{api_base}/issues/{pr_number}/comments",
+                github_token,
+                {"body": body},
+            )
+    except urllib.error.HTTPError as exc:
+        detail = exc.read().decode("utf-8", errors="replace")
+        print(
+            f"::warning::Could not post PR comment (HTTP {exc.code}): {detail} "
+            "-- this is often expected for PRs from forks, where GITHUB_TOKEN "
+            "is always read-only regardless of repo permission settings. The "
+            "evaluation itself still ran and gates the build normally."
+        )
+    except Exception as exc:  # noqa: BLE001
+        print(f"::warning::Could not post PR comment: {exc}")
 
 
 def main() -> None:
@@ -154,6 +258,18 @@ def main() -> None:
         help="Write the results table here instead of $GITHUB_STEP_SUMMARY "
         "(mainly for local testing outside Actions).",
     )
+    p.add_argument(
+        "--comment-on-pr",
+        action="store_true",
+        help="Post (and keep updated) a PR comment with the results table. "
+        "No-op on a non-pull_request event. Requires --github-token.",
+    )
+    p.add_argument(
+        "--github-token",
+        default=None,
+        help="Token used to post the PR comment (only read if --comment-on-pr "
+        "is set). Typically the workflow's own GITHUB_TOKEN.",
+    )
     args = p.parse_args()
 
     exit_code, rows = run(
@@ -164,6 +280,25 @@ def main() -> None:
         calibrate=args.calibrate,
     )
     write_summary(rows, args.summary_path)
+
+    if args.comment_on_pr:
+        pr_number = find_pr_number()
+        repo = os.environ.get("GITHUB_REPOSITORY")
+        if pr_number is None:
+            print(
+                "::notice::--comment-on-pr set but this isn't a pull_request "
+                "event; skipping PR comment."
+            )
+        elif not args.github_token or not repo:
+            print(
+                "::warning::--comment-on-pr set but --github-token or "
+                "GITHUB_REPOSITORY is missing; skipping PR comment."
+            )
+        else:
+            post_or_update_pr_comment(
+                rows, github_token=args.github_token, repo=repo, pr_number=pr_number
+            )
+
     sys.exit(exit_code)
 
 

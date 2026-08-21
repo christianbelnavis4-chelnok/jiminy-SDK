@@ -2,7 +2,7 @@ name: 'Jiminy Evaluate'
 description: >-
   Evaluate DecisionTrace fixtures against the Jiminy accountability API on
   every PR/commit and fail the build on a bad verdict. See
-  scripts/ci_evaluate.py.
+  docs/SELF_SERVE_SDK_SPEC.md (Sprint 2) and scripts/ci_evaluate.py.
 author: 'Jiminy'
 branding:
   icon: 'shield'
@@ -33,6 +33,23 @@ inputs:
       before committing to a --fail-on policy on real submissions.
     required: false
     default: 'false'
+  comment-on-pr:
+    description: >-
+      Post (and keep updated on every push) a PR comment with the
+      per-trace verdict table, in addition to the job's own
+      $GITHUB_STEP_SUMMARY. No-op on a non-pull_request event (e.g. a push
+      to main). Requires github-token to have pull-requests: write — the
+      default GITHUB_TOKEN has this on same-repo PRs if your workflow sets
+      `permissions: pull-requests: write`, but is always read-only on PRs
+      from forks regardless of that setting. A comment that fails to post
+      is a warning, not a build failure — the evaluation itself still gates
+      the build via this action's exit code either way.
+    required: false
+    default: 'true'
+  github-token:
+    description: 'Token used to post the PR comment. Only read when comment-on-pr is true.'
+    required: false
+    default: ${{ github.token }}
 
 outputs:
   exit-code:
@@ -56,13 +73,18 @@ runs:
         if [ "${{ inputs.calibrate }}" = "true" ]; then
           CALIBRATE_FLAG="--calibrate"
         fi
+        COMMENT_FLAG=""
+        if [ "${{ inputs.comment-on-pr }}" = "true" ]; then
+          COMMENT_FLAG="--comment-on-pr"
+        fi
         set +e
         python "${{ github.action_path }}/../../../scripts/ci_evaluate.py" \
           --api-key "${{ inputs.api-key }}" \
           --base-url "${{ inputs.base-url }}" \
           --traces-glob "${{ inputs.traces-glob }}" \
           --fail-on "${{ inputs.fail-on }}" \
-          $CALIBRATE_FLAG
+          --github-token "${{ inputs.github-token }}" \
+          $CALIBRATE_FLAG $COMMENT_FLAG
         code=$?
         set -e
         echo "exit-code=$code" >> "$GITHUB_OUTPUT"
