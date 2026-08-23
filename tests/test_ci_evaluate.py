@@ -54,7 +54,7 @@ class TestRun:
             return {"overall_verdict": "approved", "failed_criteria": []}
 
         with patch("jiminy_sdk.client.Client.evaluate", fake_evaluate):
-            exit_code, rows = mod.run(
+            exit_code, rows, fixture_rows = mod.run(
                 api_key="k",
                 base_url="https://api.example.com",
                 traces_glob=str(tmp_path / "*.json"),
@@ -72,7 +72,7 @@ class TestRun:
             return {"overall_verdict": "rejected", "failed_criteria": ["C1"]}
 
         with patch("jiminy_sdk.client.Client.evaluate", fake_evaluate):
-            exit_code, rows = mod.run(
+            exit_code, rows, fixture_rows = mod.run(
                 api_key="k",
                 base_url="https://api.example.com",
                 traces_glob=str(tmp_path / "*.json"),
@@ -89,7 +89,7 @@ class TestRun:
             return {"overall_verdict": "flagged", "failed_criteria": []}
 
         with patch("jiminy_sdk.client.Client.evaluate", fake_evaluate):
-            exit_code, rows = mod.run(
+            exit_code, rows, fixture_rows = mod.run(
                 api_key="k",
                 base_url="https://api.example.com",
                 traces_glob=str(tmp_path / "*.json"),
@@ -105,7 +105,7 @@ class TestRun:
             return {"overall_verdict": "flagged", "failed_criteria": []}
 
         with patch("jiminy_sdk.client.Client.evaluate", fake_evaluate):
-            exit_code, rows = mod.run(
+            exit_code, rows, fixture_rows = mod.run(
                 api_key="k",
                 base_url="https://api.example.com",
                 traces_glob=str(tmp_path / "*.json"),
@@ -122,7 +122,7 @@ class TestRun:
             raise JiminyAPIError(403, {"detail": "Invalid API key."})
 
         with patch("jiminy_sdk.client.Client.evaluate", fake_evaluate):
-            exit_code, rows = mod.run(
+            exit_code, rows, fixture_rows = mod.run(
                 api_key="bad",
                 base_url="https://api.example.com",
                 traces_glob=str(tmp_path / "*.json"),
@@ -151,7 +151,7 @@ class TestRun:
         assert captured_modes == ["calibrate"]
 
     def test_no_matching_files_exits_zero_with_warning(self, tmp_path, mod, capsys):
-        exit_code, rows = mod.run(
+        exit_code, rows, fixture_rows = mod.run(
             api_key="k",
             base_url="https://api.example.com",
             traces_glob=str(tmp_path / "*.json"),
@@ -160,6 +160,137 @@ class TestRun:
         )
         assert exit_code == 0
         assert rows == []
+        assert "::warning::" in capsys.readouterr().out
+
+
+class TestFailOnRegression:
+    def _fixture(self, expected_finding="FAIL", expected_criterion="C2"):
+        return {
+            "fixture_id": "fx-1",
+            "criterion": "C2",
+            "scenario": {
+                "synthetic_trace": {"trace_id": "synthetic-1"},
+                "expected_criterion": expected_criterion,
+                "expected_finding": expected_finding,
+                "narrative": "n",
+            },
+        }
+
+    def test_disabled_by_default_no_fixture_calls(self, tmp_path, mod):
+        _write_trace(tmp_path, "t1.json", "t-1")
+
+        def fake_evaluate(self, trace, **kwargs):
+            return {"overall_verdict": "approved", "failed_criteria": []}
+
+        with (
+            patch("jiminy_sdk.client.Client.evaluate", fake_evaluate),
+            patch("jiminy_sdk.client.Client.list_fixtures") as mock_list,
+        ):
+            exit_code, rows, fixture_rows = mod.run(
+                api_key="k",
+                base_url="https://api.example.com",
+                traces_glob=str(tmp_path / "*.json"),
+                fail_on="rejected",
+                calibrate=False,
+            )
+        mock_list.assert_not_called()
+        assert fixture_rows == []
+
+    def test_regression_detected_reported_but_never_fails_build(self, tmp_path, mod):
+        _write_trace(tmp_path, "t1.json", "t-1")
+
+        def fake_evaluate(self, trace, mode="evaluate", **kwargs):
+            if trace.get("trace_id") == "synthetic-1":
+                # Current build now PASSES what used to FAIL -- a regression.
+                return {
+                    "overall_verdict": "approved",
+                    "failed_criteria": [],
+                    "calibration_report": {
+                        "criteria_notes": [{"criterion": "C2", "finding": "PASS"}]
+                    },
+                }
+            return {"overall_verdict": "approved", "failed_criteria": []}
+
+        with (
+            patch("jiminy_sdk.client.Client.evaluate", fake_evaluate),
+            patch(
+                "jiminy_sdk.client.Client.list_fixtures",
+                return_value=[self._fixture()],
+            ),
+        ):
+            exit_code, rows, fixture_rows = mod.run(
+                api_key="k",
+                base_url="https://api.example.com",
+                traces_glob=str(tmp_path / "*.json"),
+                fail_on="rejected",
+                calibrate=False,
+                fail_on_regression=True,
+            )
+
+        assert exit_code == 0  # advisory only -- never gates the build
+        assert len(fixture_rows) == 1
+        assert fixture_rows[0]["regressed"] is True
+
+    def test_fixture_still_holds_reported_as_not_regressed(self, tmp_path, mod):
+        _write_trace(tmp_path, "t1.json", "t-1")
+
+        def fake_evaluate(self, trace, mode="evaluate", **kwargs):
+            if trace.get("trace_id") == "synthetic-1":
+                return {
+                    "overall_verdict": "rejected",
+                    "failed_criteria": ["C2"],
+                    "calibration_report": {
+                        "criteria_notes": [{"criterion": "C2", "finding": "FAIL"}]
+                    },
+                }
+            return {"overall_verdict": "approved", "failed_criteria": []}
+
+        with (
+            patch("jiminy_sdk.client.Client.evaluate", fake_evaluate),
+            patch(
+                "jiminy_sdk.client.Client.list_fixtures",
+                return_value=[self._fixture()],
+            ),
+        ):
+            exit_code, rows, fixture_rows = mod.run(
+                api_key="k",
+                base_url="https://api.example.com",
+                traces_glob=str(tmp_path / "*.json"),
+                fail_on="rejected",
+                calibrate=False,
+                fail_on_regression=True,
+            )
+
+        assert fixture_rows[0]["regressed"] is False
+
+    def test_fixture_load_error_reported_as_warning_not_failure(
+        self, tmp_path, mod, capsys
+    ):
+        from jiminy_sdk import JiminyAPIError
+
+        _write_trace(tmp_path, "t1.json", "t-1")
+
+        def fake_evaluate(self, trace, **kwargs):
+            return {"overall_verdict": "approved", "failed_criteria": []}
+
+        def fake_list_fixtures(self, agent_owner, status="active"):
+            raise JiminyAPIError(403, {"detail": "not entitled"})
+
+        with (
+            patch("jiminy_sdk.client.Client.evaluate", fake_evaluate),
+            patch("jiminy_sdk.client.Client.list_fixtures", fake_list_fixtures),
+        ):
+            exit_code, rows, fixture_rows = mod.run(
+                api_key="k",
+                base_url="https://api.example.com",
+                traces_glob=str(tmp_path / "*.json"),
+                fail_on="rejected",
+                calibrate=False,
+                fail_on_regression=True,
+            )
+
+        assert exit_code == 0
+        assert fixture_rows == []
         assert "::warning::" in capsys.readouterr().out
 
 
@@ -286,3 +417,28 @@ class TestWriteSummary:
         summary_path = tmp_path / "summary.md"
         mod.write_summary([], str(summary_path))
         assert not summary_path.exists()
+
+    def test_fixture_rows_appended_as_second_table(self, tmp_path, mod):
+        rows = [
+            {"path": "t1.json", "trace_id": "t-1", "verdict": "approved", "failed_criteria": []}
+        ]
+        fixture_rows = [
+            {"fixture_id": "fx-1", "agent_owner": "Acme", "criterion": "C2", "regressed": True},
+            {"fixture_id": "fx-2", "agent_owner": "Acme", "criterion": "C5", "regressed": False},
+        ]
+        summary_path = tmp_path / "summary.md"
+        mod.write_summary(rows, str(summary_path), fixture_rows)
+        content = summary_path.read_text()
+        assert "fx-1" in content and "fx-2" in content
+        assert "Regressed vs frozen" in content
+        assert "⚠️" in content  # fx-1 regressed
+        assert "✅" in content  # fx-2 still holds
+
+    def test_no_fixture_rows_omits_second_table(self, tmp_path, mod):
+        rows = [
+            {"path": "t1.json", "trace_id": "t-1", "verdict": "approved", "failed_criteria": []}
+        ]
+        summary_path = tmp_path / "summary.md"
+        mod.write_summary(rows, str(summary_path), [])
+        content = summary_path.read_text()
+        assert "Regressed vs frozen" not in content
