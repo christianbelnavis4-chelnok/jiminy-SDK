@@ -54,7 +54,7 @@ class TestRun:
             return {"overall_verdict": "approved", "failed_criteria": []}
 
         with patch("jiminy_sdk.client.Client.evaluate", fake_evaluate):
-            exit_code, rows, fixture_rows = mod.run(
+            exit_code, rows, fixture_rows, ci_quota = mod.run(
                 api_key="k",
                 base_url="https://api.example.com",
                 traces_glob=str(tmp_path / "*.json"),
@@ -72,7 +72,7 @@ class TestRun:
             return {"overall_verdict": "rejected", "failed_criteria": ["C1"]}
 
         with patch("jiminy_sdk.client.Client.evaluate", fake_evaluate):
-            exit_code, rows, fixture_rows = mod.run(
+            exit_code, rows, fixture_rows, ci_quota = mod.run(
                 api_key="k",
                 base_url="https://api.example.com",
                 traces_glob=str(tmp_path / "*.json"),
@@ -89,7 +89,7 @@ class TestRun:
             return {"overall_verdict": "flagged", "failed_criteria": []}
 
         with patch("jiminy_sdk.client.Client.evaluate", fake_evaluate):
-            exit_code, rows, fixture_rows = mod.run(
+            exit_code, rows, fixture_rows, ci_quota = mod.run(
                 api_key="k",
                 base_url="https://api.example.com",
                 traces_glob=str(tmp_path / "*.json"),
@@ -105,7 +105,7 @@ class TestRun:
             return {"overall_verdict": "flagged", "failed_criteria": []}
 
         with patch("jiminy_sdk.client.Client.evaluate", fake_evaluate):
-            exit_code, rows, fixture_rows = mod.run(
+            exit_code, rows, fixture_rows, ci_quota = mod.run(
                 api_key="k",
                 base_url="https://api.example.com",
                 traces_glob=str(tmp_path / "*.json"),
@@ -122,7 +122,7 @@ class TestRun:
             raise JiminyAPIError(403, {"detail": "Invalid API key."})
 
         with patch("jiminy_sdk.client.Client.evaluate", fake_evaluate):
-            exit_code, rows, fixture_rows = mod.run(
+            exit_code, rows, fixture_rows, ci_quota = mod.run(
                 api_key="bad",
                 base_url="https://api.example.com",
                 traces_glob=str(tmp_path / "*.json"),
@@ -151,7 +151,7 @@ class TestRun:
         assert captured_modes == ["calibrate"]
 
     def test_no_matching_files_exits_zero_with_warning(self, tmp_path, mod, capsys):
-        exit_code, rows, fixture_rows = mod.run(
+        exit_code, rows, fixture_rows, ci_quota = mod.run(
             api_key="k",
             base_url="https://api.example.com",
             traces_glob=str(tmp_path / "*.json"),
@@ -186,7 +186,7 @@ class TestFailOnRegression:
             patch("jiminy_sdk.client.Client.evaluate", fake_evaluate),
             patch("jiminy_sdk.client.Client.list_fixtures") as mock_list,
         ):
-            exit_code, rows, fixture_rows = mod.run(
+            exit_code, rows, fixture_rows, ci_quota = mod.run(
                 api_key="k",
                 base_url="https://api.example.com",
                 traces_glob=str(tmp_path / "*.json"),
@@ -218,7 +218,7 @@ class TestFailOnRegression:
                 return_value=[self._fixture()],
             ),
         ):
-            exit_code, rows, fixture_rows = mod.run(
+            exit_code, rows, fixture_rows, ci_quota = mod.run(
                 api_key="k",
                 base_url="https://api.example.com",
                 traces_glob=str(tmp_path / "*.json"),
@@ -252,7 +252,7 @@ class TestFailOnRegression:
                 return_value=[self._fixture()],
             ),
         ):
-            exit_code, rows, fixture_rows = mod.run(
+            exit_code, rows, fixture_rows, ci_quota = mod.run(
                 api_key="k",
                 base_url="https://api.example.com",
                 traces_glob=str(tmp_path / "*.json"),
@@ -280,7 +280,7 @@ class TestFailOnRegression:
             patch("jiminy_sdk.client.Client.evaluate", fake_evaluate),
             patch("jiminy_sdk.client.Client.list_fixtures", fake_list_fixtures),
         ):
-            exit_code, rows, fixture_rows = mod.run(
+            exit_code, rows, fixture_rows, ci_quota = mod.run(
                 api_key="k",
                 base_url="https://api.example.com",
                 traces_glob=str(tmp_path / "*.json"),
@@ -442,3 +442,61 @@ class TestWriteSummary:
         mod.write_summary(rows, str(summary_path), [])
         content = summary_path.read_text()
         assert "Regressed vs frozen" not in content
+
+    def test_ci_quota_line_included_when_present(self, tmp_path, mod):
+        rows = [
+            {"path": "t1.json", "trace_id": "t-1", "verdict": "approved", "failed_criteria": []}
+        ]
+        summary_path = tmp_path / "summary.md"
+        mod.write_summary(rows, str(summary_path), ci_quota={"used": "12", "limit": "500"})
+        content = summary_path.read_text()
+        assert "CI credit usage" in content
+        assert "12/500" in content
+
+    def test_ci_quota_omitted_when_none(self, tmp_path, mod):
+        rows = [
+            {"path": "t1.json", "trace_id": "t-1", "verdict": "approved", "failed_criteria": []}
+        ]
+        summary_path = tmp_path / "summary.md"
+        mod.write_summary(rows, str(summary_path))
+        content = summary_path.read_text()
+        assert "CI credit usage" not in content
+
+
+class TestRunCapturesCiQuota:
+    def test_ci_quota_captured_from_response_headers(self, tmp_path, mod):
+        _write_trace(tmp_path, "t1.json", "t-1")
+
+        def fake_evaluate(self, trace, **kwargs):
+            self.last_response_headers = {
+                "X-CI-Quota-Used": "3",
+                "X-CI-Quota-Limit": "500",
+            }
+            return {"overall_verdict": "approved", "failed_criteria": []}
+
+        with patch("jiminy_sdk.client.Client.evaluate", fake_evaluate):
+            exit_code, rows, fixture_rows, ci_quota = mod.run(
+                api_key="k",
+                base_url="https://api.example.com",
+                traces_glob=str(tmp_path / "*.json"),
+                fail_on="rejected",
+                calibrate=False,
+            )
+        assert exit_code == 0
+        assert ci_quota == {"used": "3", "limit": "500"}
+
+    def test_ci_quota_none_when_headers_absent(self, tmp_path, mod):
+        _write_trace(tmp_path, "t1.json", "t-1")
+
+        def fake_evaluate(self, trace, **kwargs):
+            return {"overall_verdict": "approved", "failed_criteria": []}
+
+        with patch("jiminy_sdk.client.Client.evaluate", fake_evaluate):
+            exit_code, rows, fixture_rows, ci_quota = mod.run(
+                api_key="k",
+                base_url="https://api.example.com",
+                traces_glob=str(tmp_path / "*.json"),
+                fail_on="rejected",
+                calibrate=False,
+            )
+        assert ci_quota is None
