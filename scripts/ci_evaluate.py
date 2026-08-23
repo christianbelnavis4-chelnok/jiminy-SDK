@@ -150,23 +150,28 @@ def run(
     fail_on: str,
     calibrate: bool,
     fail_on_regression: bool = False,
-) -> tuple[int, list[dict], list[dict]]:
+) -> tuple[int, list[dict], list[dict], dict | None]:
     """Evaluate every matching trace, and optionally replay active fixtures.
 
-    Returns (exit_code, rows, fixture_rows). fixture_rows is always [] when
-    fail_on_regression is False. exit_code is never affected by
-    fixture_rows — see the advisory-only note above _load_active_fixtures.
+    Returns (exit_code, rows, fixture_rows, ci_quota). fixture_rows is
+    always [] when fail_on_regression is False. exit_code is never
+    affected by fixture_rows — see the advisory-only note above
+    _load_active_fixtures. ci_quota is None unless this run authenticated
+    with a CI token (Tier Decisions sprint, Sprint 3): the API only sets
+    X-CI-Quota-Used/X-CI-Quota-Limit response headers for CI-token
+    traffic, so a regular API key's run has nothing to surface here.
     """
     client = Client(api_key=api_key, base_url=base_url)
     traces = _load_traces(traces_glob)
     if not traces:
         print(f"::warning::No trace files matched glob: {traces_glob}")
-        return 0, [], []
+        return 0, [], [], None
 
     threshold = _VERDICT_SEVERITY[fail_on]
     rows: list[dict] = []
     exit_code = 0
     agent_owners: set[str] = set()
+    ci_quota: dict | None = None
 
     for path, trace in traces:
         trace_id = trace.get("trace_id", path)
@@ -183,7 +188,20 @@ def run(
                 {"path": path, "trace_id": trace_id, "verdict": "ERROR", "error": str(exc)}
             )
             exit_code = 1
+            if exc.status == 429:
+                print(
+                    "::error::CI credit allowance exhausted for this month "
+                    "-- this is Jiminy's one hard-blocking quota. See "
+                    "https://app.jiminy.uk/billing or contact hello@jiminy.uk."
+                )
             continue
+
+        headers = client.last_response_headers
+        if "X-CI-Quota-Used" in headers:
+            ci_quota = {
+                "used": headers["X-CI-Quota-Used"],
+                "limit": headers.get("X-CI-Quota-Limit", "?"),
+            }
 
         verdict = result.get("overall_verdict", "unknown")
         failed_criteria = result.get("failed_criteria") or []
@@ -205,15 +223,22 @@ def run(
         else:
             print(f"{path} ({trace_id}): verdict={verdict}")
 
+    if ci_quota:
+        print(f"CI credit usage: {ci_quota['used']}/{ci_quota['limit']} this month")
+
     fixture_rows: list[dict] = []
     if fail_on_regression and agent_owners:
         fixtures = _load_active_fixtures(client, sorted(agent_owners))
         fixture_rows = _replay_fixtures_against_build(client, fixtures)
 
-    return exit_code, rows, fixture_rows
+    return exit_code, rows, fixture_rows, ci_quota
 
 
-def render_markdown_table(rows: list[dict], fixture_rows: list[dict] | None = None) -> str:
+def render_markdown_table(
+    rows: list[dict],
+    fixture_rows: list[dict] | None = None,
+    ci_quota: dict | None = None,
+) -> str:
     """Shared table renderer for the Step Summary and the PR comment, so the
     two surfaces never drift into showing different information.
 
@@ -221,7 +246,10 @@ def render_markdown_table(rows: list[dict], fixture_rows: list[dict] | None = No
     column on the first — the two checks report on different things (a
     submitted trace's verdict vs. a stored fixture's regression status) and
     forcing them into one row-per-trace table would misrepresent fixtures
-    that have no corresponding row in `rows` at all.
+    that have no corresponding row in `rows` at all. ci_quota, when
+    present, is a one-line note (Tier Decisions sprint, Sprint 3) — this
+    run authenticated with a CI token, so its hard-blocking credit usage
+    is worth surfacing even though it isn't per-trace like the tables.
     """
     lines = ["| Trace | Verdict | Failed criteria |", "|---|---|---|"]
     for row in rows:
@@ -230,6 +258,9 @@ def render_markdown_table(rows: list[dict], fixture_rows: list[dict] | None = No
         criteria = ", ".join(row.get("failed_criteria") or []) or "—"
         lines.append(f"| `{row['trace_id']}` | {badge} {verdict} | {criteria} |")
     table = "\n".join(lines) + "\n"
+
+    if ci_quota:
+        table += f"\nCI credit usage: **{ci_quota['used']}/{ci_quota['limit']}** this month.\n"
 
     if fixture_rows:
         fixture_lines = [
@@ -256,10 +287,11 @@ def write_summary(
     rows: list[dict],
     summary_path: str | None,
     fixture_rows: list[dict] | None = None,
+    ci_quota: dict | None = None,
 ) -> None:
     if not rows:
         return
-    summary = render_markdown_table(rows, fixture_rows)
+    summary = render_markdown_table(rows, fixture_rows, ci_quota)
     target = summary_path or os.environ.get("GITHUB_STEP_SUMMARY")
     if target:
         with open(target, "a") as f:
@@ -312,6 +344,7 @@ def post_or_update_pr_comment(
     repo: str,
     pr_number: int,
     fixture_rows: list[dict] | None = None,
+    ci_quota: dict | None = None,
 ) -> None:
     """Post the results table as a PR comment, updating a previous run's own
     comment in place (matched via _PR_COMMENT_MARKER) rather than piling up
@@ -328,7 +361,7 @@ def post_or_update_pr_comment(
         return
     body = (
         f"{_PR_COMMENT_MARKER}\n## Jiminy evaluation results\n\n"
-        f"{render_markdown_table(rows, fixture_rows)}"
+        f"{render_markdown_table(rows, fixture_rows, ci_quota)}"
     )
     api_base = f"https://api.github.com/repos/{repo}"
     try:
@@ -422,7 +455,7 @@ def main() -> None:
     )
     args = p.parse_args()
 
-    exit_code, rows, fixture_rows = run(
+    exit_code, rows, fixture_rows, ci_quota = run(
         api_key=args.api_key,
         base_url=args.base_url,
         traces_glob=args.traces_glob,
@@ -430,7 +463,7 @@ def main() -> None:
         calibrate=args.calibrate,
         fail_on_regression=args.fail_on_regression,
     )
-    write_summary(rows, args.summary_path, fixture_rows)
+    write_summary(rows, args.summary_path, fixture_rows, ci_quota)
 
     if args.comment_on_pr:
         pr_number = find_pr_number()
@@ -452,6 +485,7 @@ def main() -> None:
                 repo=repo,
                 pr_number=pr_number,
                 fixture_rows=fixture_rows,
+                ci_quota=ci_quota,
             )
 
     sys.exit(exit_code)
