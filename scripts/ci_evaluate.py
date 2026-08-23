@@ -60,22 +60,119 @@ def _load_traces(traces_glob: str) -> list[tuple[str, dict]]:
     return traces
 
 
+# Verdict-to-Fixture (JIM-081): --fail-on-regression is deliberately
+# advisory only, mirroring api/self_serve.py's "deliberately advisory
+# only... no code path blocks" posture for quota enforcement. A regressed
+# fixture is reported (::warning:: + a table column) but never flips
+# exit_code — only --fail-on's existing verdict-severity check does that.
+# This sprint ships detection of a fixture regression; hard-blocking merges
+# on it is a deliberately separate, later decision.
+def _load_active_fixtures(
+    client: Client, agent_owners: list[str]
+) -> list[tuple[str, dict]]:
+    """Return [(agent_owner, fixture_dict), ...] for every active fixture
+    across the given agent_owners. Errors for one owner are reported as a
+    warning and skipped, not a build failure."""
+    fixtures: list[tuple[str, dict]] = []
+    for owner in agent_owners:
+        try:
+            for fixture in client.list_fixtures(owner, status="active"):
+                fixtures.append((owner, fixture))
+        except JiminyAPIError as exc:
+            print(
+                f"::warning::Could not load fixtures for agent_owner={owner} "
+                f"({exc.status}): {exc.body}"
+            )
+    return fixtures
+
+
+def _replay_fixtures_against_build(
+    client: Client, fixtures: list[tuple[str, dict]]
+) -> list[dict]:
+    """Replay each fixture's synthetic_trace via ?mode=calibrate (no quota
+    cost, no persistence — same call the main evaluate loop uses with
+    --calibrate) and diff the result against the fixture's frozen
+    expectation. Returns one row per fixture for the results table."""
+    rows: list[dict] = []
+    for owner, fixture in fixtures:
+        scenario = fixture["scenario"]
+        fixture_id = fixture["fixture_id"]
+        try:
+            response = client.evaluate(scenario["synthetic_trace"], mode="calibrate")
+        except JiminyAPIError as exc:
+            print(
+                f"::warning::Fixture {fixture_id} ({owner}) failed to replay "
+                f"({exc.status}): {exc.body}"
+            )
+            rows.append(
+                {
+                    "fixture_id": fixture_id,
+                    "agent_owner": owner,
+                    "criterion": fixture.get("criterion", ""),
+                    "regressed": None,
+                }
+            )
+            continue
+
+        actual_finding = None
+        for note in (response.get("calibration_report") or {}).get(
+            "criteria_notes", []
+        ):
+            if note.get("criterion") == scenario["expected_criterion"]:
+                actual_finding = note.get("finding")
+                break
+
+        regressed = actual_finding != scenario["expected_finding"]
+        rows.append(
+            {
+                "fixture_id": fixture_id,
+                "agent_owner": owner,
+                "criterion": fixture.get("criterion", ""),
+                "regressed": regressed,
+            }
+        )
+        if regressed:
+            print(
+                f"::warning::Fixture {fixture_id} ({owner}, {fixture.get('criterion', '')}) "
+                f"regressed: expected {scenario['expected_finding']}, got {actual_finding!r}"
+            )
+        else:
+            print(f"Fixture {fixture_id} ({owner}): still holds")
+
+    return rows
+
+
 def run(
-    *, api_key: str, base_url: str, traces_glob: str, fail_on: str, calibrate: bool
-) -> tuple[int, list[dict]]:
-    """Evaluate every matching trace. Returns (exit_code, rows) for reporting."""
+    *,
+    api_key: str,
+    base_url: str,
+    traces_glob: str,
+    fail_on: str,
+    calibrate: bool,
+    fail_on_regression: bool = False,
+) -> tuple[int, list[dict], list[dict]]:
+    """Evaluate every matching trace, and optionally replay active fixtures.
+
+    Returns (exit_code, rows, fixture_rows). fixture_rows is always [] when
+    fail_on_regression is False. exit_code is never affected by
+    fixture_rows — see the advisory-only note above _load_active_fixtures.
+    """
     client = Client(api_key=api_key, base_url=base_url)
     traces = _load_traces(traces_glob)
     if not traces:
         print(f"::warning::No trace files matched glob: {traces_glob}")
-        return 0, []
+        return 0, [], []
 
     threshold = _VERDICT_SEVERITY[fail_on]
     rows: list[dict] = []
     exit_code = 0
+    agent_owners: set[str] = set()
 
     for path, trace in traces:
         trace_id = trace.get("trace_id", path)
+        agent_owner = trace.get("agent_owner")
+        if agent_owner:
+            agent_owners.add(agent_owner)
         try:
             result = client.evaluate(
                 trace, mode="calibrate" if calibrate else "evaluate"
@@ -108,25 +205,61 @@ def run(
         else:
             print(f"{path} ({trace_id}): verdict={verdict}")
 
-    return exit_code, rows
+    fixture_rows: list[dict] = []
+    if fail_on_regression and agent_owners:
+        fixtures = _load_active_fixtures(client, sorted(agent_owners))
+        fixture_rows = _replay_fixtures_against_build(client, fixtures)
+
+    return exit_code, rows, fixture_rows
 
 
-def render_markdown_table(rows: list[dict]) -> str:
+def render_markdown_table(rows: list[dict], fixture_rows: list[dict] | None = None) -> str:
     """Shared table renderer for the Step Summary and the PR comment, so the
-    two surfaces never drift into showing different information."""
+    two surfaces never drift into showing different information.
+
+    fixture_rows, when present, is appended as a second table rather than a
+    column on the first — the two checks report on different things (a
+    submitted trace's verdict vs. a stored fixture's regression status) and
+    forcing them into one row-per-trace table would misrepresent fixtures
+    that have no corresponding row in `rows` at all.
+    """
     lines = ["| Trace | Verdict | Failed criteria |", "|---|---|---|"]
     for row in rows:
         verdict = row["verdict"]
         badge = _VERDICT_BADGES.get(verdict, "?")
         criteria = ", ".join(row.get("failed_criteria") or []) or "—"
         lines.append(f"| `{row['trace_id']}` | {badge} {verdict} | {criteria} |")
-    return "\n".join(lines) + "\n"
+    table = "\n".join(lines) + "\n"
+
+    if fixture_rows:
+        fixture_lines = [
+            "\n### Fixture regression check (advisory only)\n",
+            "| Fixture | Agent | Criterion | Regressed vs frozen |",
+            "|---|---|---|---|",
+        ]
+        for row in fixture_rows:
+            regressed = row["regressed"]
+            badge = "❓" if regressed is None else ("⚠️" if regressed else "✅")
+            status = (
+                "error" if regressed is None else ("yes" if regressed else "no")
+            )
+            fixture_lines.append(
+                f"| `{row['fixture_id']}` | {row['agent_owner']} | "
+                f"{row['criterion']} | {badge} {status} |"
+            )
+        table += "\n".join(fixture_lines) + "\n"
+
+    return table
 
 
-def write_summary(rows: list[dict], summary_path: str | None) -> None:
+def write_summary(
+    rows: list[dict],
+    summary_path: str | None,
+    fixture_rows: list[dict] | None = None,
+) -> None:
     if not rows:
         return
-    summary = render_markdown_table(rows)
+    summary = render_markdown_table(rows, fixture_rows)
     target = summary_path or os.environ.get("GITHUB_STEP_SUMMARY")
     if target:
         with open(target, "a") as f:
@@ -173,7 +306,12 @@ def find_pr_number(event_path: str | None = None) -> int | None:
 
 
 def post_or_update_pr_comment(
-    rows: list[dict], *, github_token: str, repo: str, pr_number: int
+    rows: list[dict],
+    *,
+    github_token: str,
+    repo: str,
+    pr_number: int,
+    fixture_rows: list[dict] | None = None,
 ) -> None:
     """Post the results table as a PR comment, updating a previous run's own
     comment in place (matched via _PR_COMMENT_MARKER) rather than piling up
@@ -188,7 +326,10 @@ def post_or_update_pr_comment(
     """
     if not rows:
         return
-    body = f"{_PR_COMMENT_MARKER}\n## Jiminy evaluation results\n\n{render_markdown_table(rows)}"
+    body = (
+        f"{_PR_COMMENT_MARKER}\n## Jiminy evaluation results\n\n"
+        f"{render_markdown_table(rows, fixture_rows)}"
+    )
     api_base = f"https://api.github.com/repos/{repo}"
     try:
         comments = (
@@ -253,6 +394,15 @@ def main() -> None:
         "Useful for a first CI integration before deciding on --fail-on.",
     )
     p.add_argument(
+        "--fail-on-regression",
+        action="store_true",
+        help="Also replay every active fixture (Verdict-to-Fixture) for each "
+        "agent_owner referenced by --traces-glob and report any that no "
+        "longer reproduce their frozen violation. Advisory only this "
+        "sprint: never affects exit_code, only --fail-on does — reported "
+        "as a ::warning:: and a second table, not a build failure.",
+    )
+    p.add_argument(
         "--summary-path",
         default=None,
         help="Write the results table here instead of $GITHUB_STEP_SUMMARY "
@@ -272,14 +422,15 @@ def main() -> None:
     )
     args = p.parse_args()
 
-    exit_code, rows = run(
+    exit_code, rows, fixture_rows = run(
         api_key=args.api_key,
         base_url=args.base_url,
         traces_glob=args.traces_glob,
         fail_on=args.fail_on,
         calibrate=args.calibrate,
+        fail_on_regression=args.fail_on_regression,
     )
-    write_summary(rows, args.summary_path)
+    write_summary(rows, args.summary_path, fixture_rows)
 
     if args.comment_on_pr:
         pr_number = find_pr_number()
@@ -296,7 +447,11 @@ def main() -> None:
             )
         else:
             post_or_update_pr_comment(
-                rows, github_token=args.github_token, repo=repo, pr_number=pr_number
+                rows,
+                github_token=args.github_token,
+                repo=repo,
+                pr_number=pr_number,
+                fixture_rows=fixture_rows,
             )
 
     sys.exit(exit_code)

@@ -130,3 +130,54 @@ class TestEvaluate:
         client.evaluate(_trace())
 
         assert captured["url"] == "https://api.example.com/evaluate"
+
+
+class TestListFixtures:
+    def test_sends_get_request_with_encoded_agent_owner(self, monkeypatch):
+        captured = {}
+
+        def fake_urlopen(request, timeout):
+            captured["url"] = request.full_url
+            captured["method"] = request.get_method()
+            return _FakeResponse([{"fixture_id": "fx-1"}])
+
+        monkeypatch.setattr("urllib.request.urlopen", fake_urlopen)
+
+        client = Client(api_key="k", base_url="https://api.example.com")
+        result = client.list_fixtures("Acme Health Co.")
+
+        assert captured["method"] == "GET"
+        assert "agent_owner=Acme+Health+Co." in captured["url"]
+        assert "status=active" in captured["url"]
+        assert result == [{"fixture_id": "fx-1"}]
+
+    def test_status_override(self, monkeypatch):
+        captured = {}
+
+        def fake_urlopen(request, timeout):
+            captured["url"] = request.full_url
+            return _FakeResponse([])
+
+        monkeypatch.setattr("urllib.request.urlopen", fake_urlopen)
+
+        client = Client(api_key="k", base_url="https://api.example.com")
+        client.list_fixtures("Acme", status="retired")
+
+        assert "status=retired" in captured["url"]
+
+    def test_http_error_raises_jiminy_api_error(self, monkeypatch):
+        def fake_urlopen(request, timeout):
+            raise urllib.error.HTTPError(
+                url=request.full_url,
+                code=403,
+                msg="Forbidden",
+                hdrs=None,
+                fp=io.BytesIO(json.dumps({"detail": "Agent owner not in tenant scope."}).encode()),
+            )
+
+        monkeypatch.setattr("urllib.request.urlopen", fake_urlopen)
+
+        client = Client(api_key="k", base_url="https://api.example.com")
+        with pytest.raises(JiminyAPIError) as exc_info:
+            client.list_fixtures("SomeoneElse")
+        assert exc_info.value.status == 403

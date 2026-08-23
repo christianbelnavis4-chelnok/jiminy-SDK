@@ -27,6 +27,7 @@ from __future__ import annotations
 
 import json
 import urllib.error
+import urllib.parse
 import urllib.request
 from typing import Any
 
@@ -58,16 +59,22 @@ class Client:
         self._base_url = base_url.rstrip("/")
         self._timeout = timeout
 
-    def _post(self, path: str, *, json_body: dict, params: dict | None = None) -> dict:
+    def _request(
+        self,
+        method: str,
+        path: str,
+        *,
+        json_body: dict | None = None,
+        params: dict | None = None,
+    ) -> Any:
         url = f"{self._base_url}{path}"
         if params:
-            query = "&".join(f"{k}={v}" for k, v in params.items())
-            url = f"{url}?{query}"
-        data = json.dumps(json_body).encode("utf-8")
+            url = f"{url}?{urllib.parse.urlencode(params)}"
+        data = json.dumps(json_body).encode("utf-8") if json_body is not None else None
         request = urllib.request.Request(
             url,
             data=data,
-            method="POST",
+            method=method,
             headers={
                 "X-API-Key": self._api_key,
                 "Content-Type": "application/json",
@@ -83,6 +90,9 @@ class Client:
             except json.JSONDecodeError:
                 body = raw
             raise JiminyAPIError(exc.code, body) from exc
+
+    def _post(self, path: str, *, json_body: dict, params: dict | None = None) -> dict:
+        return self._request("POST", path, json_body=json_body, params=params)
 
     def evaluate(
         self,
@@ -111,3 +121,21 @@ class Client:
         if mode != "evaluate":
             params["mode"] = mode
         return self._post("/evaluate", json_body=trace, params=params or None)
+
+    def list_fixtures(
+        self, agent_owner: str, *, status: str = "active"
+    ) -> list[dict]:
+        """GET /fixtures for one agent_owner (Verdict-to-Fixture, JIM-081).
+
+        Used by ci_evaluate.py's --fail-on-regression mode to fetch the
+        fixtures to replay against a build. Defaults to status="active" —
+        the only fixtures eligible to gate a build are ones a human has
+        promoted out of `validated` (see docs/VERDICT_TO_FIXTURE.md).
+
+        Raises JiminyAPIError on any non-2xx response.
+        """
+        return self._request(
+            "GET",
+            "/fixtures",
+            params={"agent_owner": agent_owner, "status": status},
+        )
