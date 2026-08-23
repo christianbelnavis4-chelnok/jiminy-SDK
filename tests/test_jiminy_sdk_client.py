@@ -21,8 +21,9 @@ from jiminy_sdk.client import Client, JiminyAPIError  # noqa: E402
 
 
 class _FakeResponse:
-    def __init__(self, body: dict):
+    def __init__(self, body: dict, headers: dict | None = None):
         self._body = json.dumps(body).encode("utf-8")
+        self.headers = headers or {}
 
     def read(self) -> bytes:
         return self._body
@@ -130,6 +131,25 @@ class TestEvaluate:
         client.evaluate(_trace())
 
         assert captured["url"] == "https://api.example.com/evaluate"
+
+    def test_last_response_headers_captured(self, monkeypatch):
+        """Tier Decisions sprint, Sprint 3: exposes response headers (e.g.
+        X-CI-Quota-Used/Limit) without widening evaluate()'s return type."""
+
+        def fake_urlopen(request, timeout):
+            return _FakeResponse(
+                {"overall_verdict": "approved"},
+                headers={"X-CI-Quota-Used": "12", "X-CI-Quota-Limit": "500"},
+            )
+
+        monkeypatch.setattr("urllib.request.urlopen", fake_urlopen)
+
+        client = Client(api_key="k", base_url="https://api.example.com")
+        assert client.last_response_headers == {}
+        client.evaluate(_trace())
+
+        assert client.last_response_headers["X-CI-Quota-Used"] == "12"
+        assert client.last_response_headers["X-CI-Quota-Limit"] == "500"
 
 
 class TestListFixtures:

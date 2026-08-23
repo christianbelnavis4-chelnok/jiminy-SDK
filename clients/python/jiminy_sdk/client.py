@@ -58,6 +58,13 @@ class Client:
         self._api_key = api_key
         self._base_url = base_url.rstrip("/")
         self._timeout = timeout
+        # Response headers from the most recent successful call, e.g. the
+        # X-CI-Quota-Used/X-CI-Quota-Limit pair a CI-token-authenticated
+        # evaluate() sets (Tier Decisions sprint, Sprint 3, 23 Aug 2026) --
+        # exposed as a plain attribute rather than widening evaluate()'s
+        # return type, so every existing caller of evaluate() (which
+        # returns just the parsed body) keeps working unchanged.
+        self.last_response_headers: dict[str, str] = {}
 
     def _request(
         self,
@@ -82,6 +89,7 @@ class Client:
         )
         try:
             with urllib.request.urlopen(request, timeout=self._timeout) as response:
+                self.last_response_headers = dict(response.headers)
                 return json.loads(response.read().decode("utf-8"))
         except urllib.error.HTTPError as exc:
             raw = exc.read().decode("utf-8", errors="replace")
