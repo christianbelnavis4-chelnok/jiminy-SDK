@@ -33,6 +33,15 @@ inputs:
       before committing to a --fail-on policy on real submissions.
     required: false
     default: 'false'
+  fail-on-regression:
+    description: >-
+      Opt-in Verdict-to-Fixture regression check: also replay every active
+      fixture for each agent_owner referenced by traces-glob, and report
+      any that no longer reproduce their frozen violation. Advisory only —
+      never affects this action's exit code, only fail-on does. Reported
+      as a ::warning:: and a second table alongside the main results.
+    required: false
+    default: 'false'
   comment-on-pr:
     description: >-
       Post (and keep updated on every push) a PR comment with the
@@ -73,6 +82,10 @@ runs:
         if [ "${{ inputs.calibrate }}" = "true" ]; then
           CALIBRATE_FLAG="--calibrate"
         fi
+        REGRESSION_FLAG=""
+        if [ "${{ inputs.fail-on-regression }}" = "true" ]; then
+          REGRESSION_FLAG="--fail-on-regression"
+        fi
         COMMENT_FLAG=""
         if [ "${{ inputs.comment-on-pr }}" = "true" ]; then
           COMMENT_FLAG="--comment-on-pr"
@@ -84,7 +97,7 @@ runs:
           --traces-glob "${{ inputs.traces-glob }}" \
           --fail-on "${{ inputs.fail-on }}" \
           --github-token "${{ inputs.github-token }}" \
-          $CALIBRATE_FLAG $COMMENT_FLAG
+          $CALIBRATE_FLAG $REGRESSION_FLAG $COMMENT_FLAG
         code=$?
         set -e
         echo "exit-code=$code" >> "$GITHUB_OUTPUT"
