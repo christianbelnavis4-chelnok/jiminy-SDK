@@ -9,6 +9,27 @@ on:
       - main
 
 jobs:
+  hygiene:
+    name: Public-repo hygiene check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          # Full history needed: the check diffs across a commit range, not
+          # just the tip commit.
+          fetch-depth: 0
+
+      - name: Check commit messages and PR text for internal references
+        env:
+          GITHUB_EVENT_NAME: ${{ github.event_name }}
+          GITHUB_EVENT_BEFORE: ${{ github.event.before }}
+          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_BODY: ${{ github.event.pull_request.body }}
+        run: python3 scripts/check_public_repo_hygiene.py
+
   test:
     name: Lint, test
     runs-on: ubuntu-latest
