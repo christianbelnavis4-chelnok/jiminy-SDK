@@ -91,8 +91,8 @@ class _RunState:
 
 def create_jiminy_callback_handler(
     *,
-    api_key: str,
-    base_url: str,
+    api_key: str | None = None,
+    base_url: str | None = None,
     agent_owner: str,
     submitted_by: str,
     domain_profile: str = "general",
@@ -104,8 +104,9 @@ def create_jiminy_callback_handler(
     async_submit: bool = True,
     on_result: Any = None,
     on_error: Any = None,
+    capture_dir: str | None = None,
 ):
-    """Build a LangChain BaseCallbackHandler that auto-submits to Jiminy.
+    """Build a LangChain BaseCallbackHandler that submits to Jiminy.
 
     Requires langchain-core to be importable — raises ImportError with an
     actionable message otherwise, rather than failing on class definition
@@ -121,6 +122,12 @@ def create_jiminy_callback_handler(
     optional callables invoked after submission — useful for logging or
     surfacing verdicts in async_submit mode, where there's otherwise no
     return value to inspect.
+
+    capture_dir, when set, writes each finished trace as JSON into that
+    directory instead of calling the Jiminy API directly — for CI jobs
+    that want a live agent run captured to fixture files an evaluate step
+    picks up afterward, rather than an immediate evaluation call. api_key
+    and base_url are unused (and may be omitted) in this mode.
     """
     try:
         from langchain_core.callbacks import BaseCallbackHandler
@@ -130,9 +137,15 @@ def create_jiminy_callback_handler(
             'pip install "jiminy-sdk[langchain]"  (or: pip install langchain-core)'
         ) from exc
 
-    from jiminy_sdk import Client, JiminyAPIError, TraceBuilder
+    from jiminy_sdk import JiminyAPIError, TraceBuilder
 
-    client = Client(api_key=api_key, base_url=base_url)
+    client = None
+    if capture_dir is None:
+        from jiminy_sdk import Client
+
+        client = Client(api_key=api_key, base_url=base_url)
+    else:
+        os.makedirs(capture_dir, exist_ok=True)
 
     class JiminyCallbackHandler(BaseCallbackHandler):
         """Auto-submits one Jiminy evaluation per top-level chain invocation."""
@@ -323,6 +336,17 @@ def create_jiminy_callback_handler(
                     )
                 builder.finalize(state.final_output or "(no output captured)")
                 trace = builder.build()
+
+                if capture_dir is not None:
+                    safe_name = trace_id.replace("/", "_")
+                    path = os.path.join(capture_dir, f"{safe_name}.json")
+                    with open(path, "w") as f:
+                        json.dump(trace, f, indent=2, default=str)
+                    logger.info("Jiminy: captured %s -> %s", trace_id, path)
+                    if on_result is not None:
+                        on_result(trace_id, {"captured_to": path})
+                    return
+
                 result = client.evaluate(trace)
                 logger.info(
                     "Jiminy: evaluated %s -> %s", trace_id, result.get("overall_verdict")

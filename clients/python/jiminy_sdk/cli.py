@@ -1,4 +1,4 @@
-"""`jiminy` CLI — `jiminy auth login` (JIM-071) and `jiminy eval` (JIM-076).
+"""`jiminy` CLI — `jiminy auth login` and `jiminy eval`.
 
 `auth login` is device-authorization login: the terminal never sees a
 Firebase ID token or a password. It gets a short code, hands it to a

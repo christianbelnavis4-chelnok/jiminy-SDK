@@ -1,0 +1,53 @@
+# Copy this to .github/workflows/jiminy-evaluate.yml in YOUR repo (not this
+# one — see ci-workflow-example.yml's header for why this file isn't a live
+# workflow here).
+#
+# Auto-capture path: runs the agent inside the job and captures what it
+# does as DecisionTrace fixtures, instead of requiring traces/*.json to be
+# hand-written or pre-recorded up front. See scripts/ci_capture_and_evaluate.py
+# and adapters/langchain/adapter.py's capture_dir option for what this
+# actually does. Compare with ci-workflow-example.yml, which evaluates
+# fixtures you already have checked in.
+
+name: Jiminy agent accountability check (auto-capture)
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  jiminy-capture-and-evaluate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install agent + Jiminy dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run agent and capture traces
+        run: |
+          python scripts/ci_capture_and_evaluate.py \
+            --agent-module agent \
+            --inputs ci-inputs.json \
+            --traces-dir traces \
+            --agent-owner Weather-Quickstart-Bot \
+            --submitted-by "$JIMINY_TENANT_ID"
+        env:
+          JIMINY_TENANT_ID: ${{ vars.JIMINY_TENANT_ID }}
+
+      - name: Evaluate captured traces
+        uses: christianbelnavis4-chelnok/jiminy-action@v1
+        with:
+          api-key: ${{ secrets.JIMINY_API_KEY }}
+          base-url: ${{ vars.JIMINY_BASE_URL }}
+          traces-glob: 'traces/*.json'
+          fail-on: rejected

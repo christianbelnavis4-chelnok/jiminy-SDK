@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 """CI hook: evaluate a set of DecisionTrace fixtures against Jiminy and fail
-the build on a bad verdict (docs/SELF_SERVE_SDK_SPEC.md, Sprint 2).
+the build on a bad verdict (docs/SELF_SERVE_SDK_SPEC.md).
 
 Intended use: a repo that owns an agent checks in a handful of DecisionTrace
 JSON fixtures (either hand-written or captured from real runs) representing
 its agent's typical behaviour, and runs this script on every PR/commit —
 the same idea as a snapshot/regression test, but the "expected" state is
 "still passes independent evaluation" rather than a fixed golden output.
-Wired up as a reusable composite action: .github/actions/evaluate/action.yml.
+Wired up as a reusable composite action: see the christianbelnavis4-chelnok/jiminy-action repo.
 
 Usage:
     python scripts/ci_evaluate.py \
@@ -60,9 +60,9 @@ def _load_traces(traces_glob: str) -> list[tuple[str, dict]]:
     return traces
 
 
-# Verdict-to-Fixture (JIM-081): --fail-on-regression is deliberately
-# advisory only, mirroring api/self_serve.py's "deliberately advisory
-# only... no code path blocks" posture for quota enforcement. A regressed
+# --fail-on-regression is deliberately advisory only, mirroring
+# api/self_serve.py's "deliberately advisory only... no code path blocks"
+# posture for quota enforcement. A regressed
 # fixture is reported (::warning:: + a table column) but never flips
 # exit_code — only --fail-on's existing verdict-severity check does that.
 # This sprint ships detection of a fixture regression; hard-blocking merges
@@ -157,7 +157,7 @@ def run(
     always [] when fail_on_regression is False. exit_code is never
     affected by fixture_rows — see the advisory-only note above
     _load_active_fixtures. ci_quota is None unless this run authenticated
-    with a CI token (Tier Decisions sprint, Sprint 3): the API only sets
+    with a CI token: the API only sets
     X-CI-Quota-Used/X-CI-Quota-Limit response headers for CI-token
     traffic, so a regular API key's run has nothing to surface here.
     """
@@ -247,7 +247,7 @@ def render_markdown_table(
     submitted trace's verdict vs. a stored fixture's regression status) and
     forcing them into one row-per-trace table would misrepresent fixtures
     that have no corresponding row in `rows` at all. ci_quota, when
-    present, is a one-line note (Tier Decisions sprint, Sprint 3) — this
+    present, is a one-line note — this
     run authenticated with a CI token, so its hard-blocking credit usage
     is worth surfacing even though it isn't per-trace like the tables.
     """
@@ -429,7 +429,7 @@ def main() -> None:
     p.add_argument(
         "--fail-on-regression",
         action="store_true",
-        help="Also replay every active fixture (Verdict-to-Fixture) for each "
+        help="Also replay every active fixture for each "
         "agent_owner referenced by --traces-glob and report any that no "
         "longer reproduce their frozen violation. Advisory only this "
         "sprint: never affects exit_code, only --fail-on does — reported "

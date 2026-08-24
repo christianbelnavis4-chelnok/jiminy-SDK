@@ -9,6 +9,7 @@
 [![PyPI](https://img.shields.io/pypi/v/jiminy-sdk)](https://pypi.org/project/jiminy-sdk/)
 [![Python](https://img.shields.io/pypi/pyversions/jiminy-sdk)](https://pypi.org/project/jiminy-sdk/)
 [![npm](https://img.shields.io/npm/v/@ctbelnavis4/jiminy-sdk)](https://www.npmjs.com/package/@ctbelnavis4/jiminy-sdk)
+[![Marketplace](https://img.shields.io/badge/marketplace-Jiminy%20Evaluate-blue?logo=github)](https://github.com/marketplace/actions/jiminy-evaluate)
 
 # Jiminy SDK — clients for the Independent AI Agent Accountability Layer
 
@@ -188,13 +189,16 @@ See [`docs/QUICKSTART.md`](docs/QUICKSTART.md) (Python/REST) and [`docs/QUICKSTA
 | `adapters/` | Drop-in adapters that build a `DecisionTrace` from a LangChain, CrewAI, LangSmith, OpenAI Agents, or OpenTelemetry run. |
 | `validator/` | Standalone `DecisionTrace` schema validator — useful for checking trace fixtures before submission. |
 | `schema/trace_schema.py` | The `DecisionTrace`/`Step` pydantic models shared by the adapters and validator. |
-| `scripts/ci_evaluate.py` + `.github/actions/evaluate/` | A reusable CI action: evaluate trace fixtures on every PR and fail the build on a bad verdict. Works with the Python and JS SDKs. |
+| [`jiminy-action`](https://github.com/christianbelnavis4-chelnok/jiminy-action) + `scripts/ci_evaluate.py` | A reusable CI action: evaluate trace fixtures on every PR and fail the build on a bad verdict. Works with the Python and JS SDKs. |
 | `examples/` | Runnable end-to-end examples, including a LangChain and CrewAI quickstart with CI gating wired up. |
 | `attestation_vectors/`, `docs/ATTESTATION_SPEC.md` | The HMAC hash-chain attestation format and golden test vectors, checked identically by the Python and JS SDKs. |
 
 ## CLI-style CI gating
 
-Add trace fixtures to your repo and gate PRs on their verdict without writing any code — see [`.github/actions/evaluate/action.yml`](.github/actions/evaluate/action.yml) and the worked examples in `examples/*/ci-workflow-example.yml`.
+Gate PRs on your agent's Jiminy verdict without writing any application code — see [`jiminy-action`](https://github.com/christianbelnavis4-chelnok/jiminy-action). Two ways to feed it traces:
+
+- **Bring your own traces.** Check `traces/*.json` fixtures into your repo (hand-written, or captured from a real run once) and evaluate them on every PR. Worked examples: `examples/*/ci-workflow-example.yml`.
+- **Auto-capture from a live run** (LangChain only for now). The CI job runs your agent itself and captures the trace automatically via [`scripts/ci_capture_and_evaluate.py`](scripts/ci_capture_and_evaluate.py) and [`adapters/langchain/adapter.py`](adapters/langchain/adapter.py)'s capture mode — no fixtures to maintain by hand. Worked example: [`examples/langchain_quickstart/ci-workflow-auto-capture.yml`](examples/langchain_quickstart/ci-workflow-auto-capture.yml).
 
 ## Authentication
 

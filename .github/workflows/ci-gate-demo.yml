@@ -16,7 +16,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Evaluate demo traces with Jiminy
-        uses: ./.github/actions/evaluate
+        uses: christianbelnavis4-chelnok/jiminy-action@v1
         with:
           api-key: ${{ secrets.JIMINY_API_KEY }}
           base-url: ${{ vars.JIMINY_BASE_URL }}

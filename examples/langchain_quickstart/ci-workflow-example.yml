@@ -4,8 +4,8 @@
 # avoid being mistaken for a live workflow in the Jiminy repo itself).
 #
 # Runs the fixtures in traces/*.json against Jiminy on every PR. See
-# scripts/ci_evaluate.py and .github/actions/evaluate/action.yml in the
-# Jiminy repo for what this actually does.
+# scripts/ci_evaluate.py in this repo and the christianbelnavis4-chelnok/jiminy-action
+# repo for what this actually does.
 
 name: Jiminy agent accountability check
 
@@ -29,7 +29,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Evaluate agent traces
-        uses: christianbelnavis4-chelnok/jiminy-sdk/.github/actions/evaluate@main
+        uses: christianbelnavis4-chelnok/jiminy-action@v1
         with:
           api-key: ${{ secrets.JIMINY_API_KEY }}
           base-url: ${{ vars.JIMINY_BASE_URL }}

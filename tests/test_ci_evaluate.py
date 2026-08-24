@@ -1,5 +1,5 @@
-"""Tests for scripts/ci_evaluate.py — the CI hook (docs/SELF_SERVE_SDK_SPEC.md,
-Sprint 2). Loaded via importlib since scripts/ isn't a package, same
+"""Tests for scripts/ci_evaluate.py — the CI hook (docs/SELF_SERVE_SDK_SPEC.md).
+Loaded via importlib since scripts/ isn't a package, same
 approach as tests/test_kpi_report.py and tests/test_seed_broken_attestation.py.
 """
 

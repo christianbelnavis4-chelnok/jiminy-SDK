@@ -60,8 +60,7 @@ class Client:
         self._timeout = timeout
         # Response headers from the most recent successful call, e.g. the
         # X-CI-Quota-Used/X-CI-Quota-Limit pair a CI-token-authenticated
-        # evaluate() sets (Tier Decisions sprint, Sprint 3, 23 Aug 2026) --
-        # exposed as a plain attribute rather than widening evaluate()'s
+        # evaluate() sets -- exposed as a plain attribute rather than widening evaluate()'s
         # return type, so every existing caller of evaluate() (which
         # returns just the parsed body) keeps working unchanged.
         self.last_response_headers: dict[str, str] = {}
@@ -133,7 +132,7 @@ class Client:
     def list_fixtures(
         self, agent_owner: str, *, status: str = "active"
     ) -> list[dict]:
-        """GET /fixtures for one agent_owner (Verdict-to-Fixture, JIM-081).
+        """GET /fixtures for one agent_owner.
 
         Used by ci_evaluate.py's --fail-on-regression mode to fetch the
         fixtures to replay against a build. Defaults to status="active" —
