@@ -45,7 +45,7 @@ jobs:
           JIMINY_TENANT_ID: ${{ vars.JIMINY_TENANT_ID }}
 
       - name: Evaluate captured traces
-        uses: christianbelnavis4-chelnok/jiminy-sdk/.github/actions/evaluate@main
+        uses: christianbelnavis4-chelnok/jiminy-action@v1
         with:
           api-key: ${{ secrets.JIMINY_API_KEY }}
           base-url: ${{ vars.JIMINY_BASE_URL }}

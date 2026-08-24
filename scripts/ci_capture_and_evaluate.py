@@ -4,13 +4,14 @@ as DecisionTrace fixtures, instead of requiring a repo to hand-write or
 pre-record traces/*.json up front.
 
 This is the "auto-capture" path. The existing bring-your-own-traces path
-(scripts/ci_evaluate.py, wired via .github/actions/evaluate/action.yml)
-still applies afterward — this script only produces the trace files; it
-never calls the Jiminy API itself. Wire both into one workflow as:
+(scripts/ci_evaluate.py, wired via the christianbelnavis4-chelnok/jiminy-action
+composite action) still applies afterward — this script only produces
+the trace files; it never calls the Jiminy API itself. Wire both into
+one workflow as:
 
     - run: python scripts/ci_capture_and_evaluate.py --agent-module agent \
              --inputs inputs.json --traces-dir traces
-    - uses: ./.github/actions/evaluate
+    - uses: christianbelnavis4-chelnok/jiminy-action@v1
       with:
         traces-glob: 'traces/*.json'
 

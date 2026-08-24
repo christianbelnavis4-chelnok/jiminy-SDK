@@ -7,7 +7,7 @@ JSON fixtures (either hand-written or captured from real runs) representing
 its agent's typical behaviour, and runs this script on every PR/commit —
 the same idea as a snapshot/regression test, but the "expected" state is
 "still passes independent evaluation" rather than a fixed golden output.
-Wired up as a reusable composite action: .github/actions/evaluate/action.yml.
+Wired up as a reusable composite action: see the christianbelnavis4-chelnok/jiminy-action repo.
 
 Usage:
     python scripts/ci_evaluate.py \

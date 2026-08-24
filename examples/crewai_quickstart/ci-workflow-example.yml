@@ -25,7 +25,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Evaluate agent traces
-        uses: christianbelnavis4-chelnok/jiminy-sdk/.github/actions/evaluate@main
+        uses: christianbelnavis4-chelnok/jiminy-action@v1
         with:
           api-key: ${{ secrets.JIMINY_API_KEY }}
           base-url: ${{ vars.JIMINY_BASE_URL }}
