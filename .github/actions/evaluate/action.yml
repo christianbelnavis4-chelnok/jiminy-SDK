@@ -2,7 +2,7 @@ name: 'Jiminy Evaluate'
 description: >-
   Evaluate DecisionTrace fixtures against the Jiminy accountability API on
   every PR/commit and fail the build on a bad verdict. See
-  docs/SELF_SERVE_SDK_SPEC.md (Sprint 2) and scripts/ci_evaluate.py.
+  docs/SELF_SERVE_SDK_SPEC.md and scripts/ci_evaluate.py.
 author: 'Jiminy'
 branding:
   icon: 'shield'
@@ -35,7 +35,7 @@ inputs:
     default: 'false'
   fail-on-regression:
     description: >-
-      Opt-in Verdict-to-Fixture regression check: also replay every active
+      Opt-in fixture regression check: also replay every active
       fixture for each agent_owner referenced by traces-glob, and report
       any that no longer reproduce their frozen violation. Advisory only —
       never affects this action's exit code, only fail-on does. Reported

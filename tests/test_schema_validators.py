@@ -1,4 +1,4 @@
-"""Tests for field validators added to DecisionTrace and Step in Sprint 3A."""
+"""Tests for field validators added to DecisionTrace and Step."""
 
 from __future__ import annotations
 

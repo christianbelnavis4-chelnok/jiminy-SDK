@@ -133,7 +133,7 @@ class TestEvaluate:
         assert captured["url"] == "https://api.example.com/evaluate"
 
     def test_last_response_headers_captured(self, monkeypatch):
-        """Tier Decisions sprint, Sprint 3: exposes response headers (e.g.
+        """Exposes response headers (e.g.
         X-CI-Quota-Used/Limit) without widening evaluate()'s return type."""
 
         def fake_urlopen(request, timeout):
