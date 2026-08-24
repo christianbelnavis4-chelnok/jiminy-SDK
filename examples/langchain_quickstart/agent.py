@@ -56,6 +56,12 @@ def run_agent(inputs: dict) -> dict:
     return {"output": f"The weather in {city} is: {weather}"}
 
 
+def build_chain() -> RunnableLambda:
+    """Module-level factory so other tooling (e.g. the CI auto-capture
+    script) can get a runnable chain without executing main()."""
+    return RunnableLambda(run_agent)
+
+
 def main() -> None:
     question = sys.argv[1] if len(sys.argv) > 1 else "What is the weather in Paris?"
 
@@ -84,7 +90,7 @@ def main() -> None:
         on_error=lambda trace_id, exc: print(f"Jiminy submission failed: {exc}"),
     )
 
-    chain = RunnableLambda(run_agent)
+    chain = build_chain()
     print(f"Asking: {question}")
     output = chain.invoke({"input": question}, config={"callbacks": [handler]})
     print(f"Answer: {output['output']}")

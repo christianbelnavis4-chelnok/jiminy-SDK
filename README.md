@@ -194,7 +194,10 @@ See [`docs/QUICKSTART.md`](docs/QUICKSTART.md) (Python/REST) and [`docs/QUICKSTA
 
 ## CLI-style CI gating
 
-Add trace fixtures to your repo and gate PRs on their verdict without writing any code — see [`.github/actions/evaluate/action.yml`](.github/actions/evaluate/action.yml) and the worked examples in `examples/*/ci-workflow-example.yml`.
+Gate PRs on your agent's Jiminy verdict without writing any application code — see [`.github/actions/evaluate/action.yml`](.github/actions/evaluate/action.yml). Two ways to feed it traces:
+
+- **Bring your own traces.** Check `traces/*.json` fixtures into your repo (hand-written, or captured from a real run once) and evaluate them on every PR. Worked examples: `examples/*/ci-workflow-example.yml`.
+- **Auto-capture from a live run** (LangChain only for now). The CI job runs your agent itself and captures the trace automatically via [`scripts/ci_capture_and_evaluate.py`](scripts/ci_capture_and_evaluate.py) and [`adapters/langchain/adapter.py`](adapters/langchain/adapter.py)'s capture mode — no fixtures to maintain by hand. Worked example: [`examples/langchain_quickstart/ci-workflow-auto-capture.yml`](examples/langchain_quickstart/ci-workflow-auto-capture.yml).
 
 ## Authentication
 
