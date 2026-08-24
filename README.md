@@ -9,6 +9,7 @@
 [![PyPI](https://img.shields.io/pypi/v/jiminy-sdk)](https://pypi.org/project/jiminy-sdk/)
 [![Python](https://img.shields.io/pypi/pyversions/jiminy-sdk)](https://pypi.org/project/jiminy-sdk/)
 [![npm](https://img.shields.io/npm/v/@ctbelnavis4/jiminy-sdk)](https://www.npmjs.com/package/@ctbelnavis4/jiminy-sdk)
+[![Marketplace](https://img.shields.io/badge/marketplace-Jiminy%20Evaluate-blue?logo=github)](https://github.com/marketplace/actions/jiminy-evaluate)
 
 # Jiminy SDK — clients for the Independent AI Agent Accountability Layer
 
