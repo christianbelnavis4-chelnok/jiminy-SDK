@@ -37,8 +37,9 @@ FORBIDDEN_PATTERNS: list[tuple[re.Pattern, str]] = [
     (re.compile(r"\bJIM-\d+\b"), "internal ticket ID (JIM-NNN)"),
     (re.compile(r"\bSprint\s+\d+\b", re.IGNORECASE), "internal sprint name"),
     (re.compile(r"\bJiminy-dev\b", re.IGNORECASE), "internal repo name (JIMINY-dev)"),
-    (re.compile(r"Claude-Session:\s*\S+"), "private Claude session URL"),
+    (re.compile(r"Claude-Session:\s*\S+", re.IGNORECASE), "private Claude session URL"),
     (re.compile(r"\bVerdict-to-Fixture\b", re.IGNORECASE), "internal feature codename"),
+    (re.compile(r"Co-Authored-By:\s*Claude\b", re.IGNORECASE), "Co-Authored-By: Claude trailer"),
 ]
 
 
