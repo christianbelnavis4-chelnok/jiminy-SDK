@@ -179,7 +179,7 @@ def _supports_color() -> bool:
 
 
 def _render_verdict(result: dict) -> str:
-    """Render an EvaluationResult dict as a scannable pass/fail/review block.
+    """Render an AuditResult dict as a scannable pass/fail/review block.
 
     Mirrors the internal `cli/evaluate.py` renderer's layout (six-criteria
     table + verdict banner) but reads only the public JSON shape returned
@@ -189,7 +189,7 @@ def _render_verdict(result: dict) -> str:
     color = _supports_color()
     lines: list[str] = []
     lines.append("=" * _WIDTH)
-    lines.append("  JIMINY -- Agent Accountability Evaluation")
+    lines.append("  JIMINY -- Agent Accountability Audit")
     lines.append("=" * _WIDTH)
     lines.append(f"  Trace    : {result.get('trace_id', '?')}")
     lines.append(f"  Model    : {result.get('model_used', '?')}")
@@ -253,14 +253,14 @@ def eval_command(base_url: str, *, demo: bool, trace_path: str | None) -> int:
     except _APIError as exc:
         if exc.status == 429:
             print()
-            print("  You've used today's free demo evaluations.")
+            print("  You've used today's free demo audits.")
             print("  Sign up for unlimited use: `jiminy auth login`")
             print()
             return 1
         if exc.status == 413:
             print(f"  {exc.detail}", file=sys.stderr)
             return 1
-        print(f"  Evaluation failed ({exc.status}): {exc.detail}", file=sys.stderr)
+        print(f"  Audit failed ({exc.status}): {exc.detail}", file=sys.stderr)
         return 1
     except urllib.error.URLError as exc:
         print(f"  Could not reach {base_url}: {exc.reason}", file=sys.stderr)
@@ -290,10 +290,10 @@ def main(argv: list[str] | None = None) -> int:
     )
     eval_group = eval_parser.add_mutually_exclusive_group()
     eval_group.add_argument(
-        "--demo", action="store_true", help="Evaluate a bundled reference trace"
+        "--demo", action="store_true", help="Audit a bundled reference trace"
     )
     eval_group.add_argument(
-        "--trace", metavar="FILE", help="Evaluate a DecisionTrace JSON file"
+        "--trace", metavar="FILE", help="Audit a DecisionTrace JSON file"
     )
 
     args = parser.parse_args(argv)

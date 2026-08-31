@@ -1,7 +1,7 @@
 # jiminy-sdk
 
 Attested trace builder, calibration tools, and a CLI for the [Jiminy](https://jiminy.uk)
-AI agent evaluation API. Zero runtime dependencies — built on the Python
+AI agent audit API. Zero runtime dependencies — built on the Python
 standard library only.
 
 ```bash
@@ -13,7 +13,7 @@ jiminy eval --demo
 with no API key or signup required — see [Try it in 30 seconds](https://github.com/christianbelnavis4-chelnok/jiminy-sdk#try-it-in-30-seconds)
 in the main repo README. `jiminy eval --trace ./my-trace.json` does the
 same against your own trace file. Both are rate-limited (a handful of
-evaluations per day); `jiminy auth login` signs up for unlimited use.
+audits per day); `jiminy auth login` signs up for unlimited use.
 
 ## What's in this package
 
@@ -23,7 +23,7 @@ evaluations per day); `jiminy auth login` signs up for unlimited use.
 - **`TraceBuilder`** — construct attested `DecisionTrace` payloads. Each
   step is signed with HMAC-SHA256, chained to the previous step's hash, so
   the server can cryptographically confirm the trace wasn't modified
-  between emission and evaluation.
+  between emission and audit.
 - **`CalibrationSession`** — wraps `TraceBuilder` to build and submit a
   trace in calibration mode: a diagnostic run that isn't persisted and
   doesn't count against quota, returning a per-criterion report to guide

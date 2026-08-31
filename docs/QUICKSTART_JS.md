@@ -65,7 +65,7 @@ export JIMINY_TENANT_ID="the tenant_id from the response"
 Self-serve tenants have an **open scope**: you may declare any
 `agentOwner` name for your own traces — there's no operator pre-registering
 owners per signup, unlike the invite-code design-partner path. The
-self-serve free tier is capped at 25 evaluations/month and a 10 req/min
+self-serve free tier is capped at 25 audits/month and a 10 req/min
 rate limit .
 
 ---
@@ -122,7 +122,7 @@ before going live: `client.evaluate(trace, { mode: 'calibrate' })`.
 
 ---
 
-## 4. Read your evaluation history
+## 4. Read your audit history
 
 ```bash
 curl -s "$JIMINY_BASE_URL/evaluations" \

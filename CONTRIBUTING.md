@@ -1,6 +1,6 @@
 # Contributing to jiminy-sdk
 
-This repo is the Apache 2.0-licensed evaluation SDK: client libraries,
+This repo is the Apache 2.0-licensed audit SDK: client libraries,
 framework adapters, and CI tooling for submitting traces to the hosted
 Jiminy accountability API. The hosted platform, judge prompt library,
 scoring rubric, and differential-treatment proxy set live outside this

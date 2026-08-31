@@ -1,7 +1,7 @@
 # @ctbelnavis4/jiminy-sdk
 
 TypeScript/JavaScript SDK for the [Jiminy](https://jiminy.uk) AI agent
-accountability API — build attested traces and submit them for evaluation.
+accountability API — build attested traces and submit them for audit.
 
 Zero runtime dependencies (Node >=18, uses the built-in `fetch` and
 `node:crypto`), mirroring the Python SDK (`clients/python/jiminy_sdk`) both

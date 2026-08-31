@@ -1,11 +1,11 @@
 [project]
 name = "jiminy-sdk"
 version = "0.3.0"
-description = "Jiminy SDK — attested trace builder and calibration tools for the Jiminy evaluation API"
+description = "Jiminy SDK — attested trace builder and calibration tools for the Jiminy audit API"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = []
-keywords = ["jiminy", "ai-agents", "evaluation", "attestation", "compliance"]
+keywords = ["jiminy", "ai-agents", "audit", "attestation", "compliance"]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",

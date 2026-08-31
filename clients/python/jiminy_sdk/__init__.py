@@ -1,4 +1,4 @@
-"""Jiminy SDK — attested trace builder and calibration tools for the Jiminy evaluation API."""
+"""Jiminy SDK — attested trace builder and calibration tools for the Jiminy audit API."""
 
 from jiminy_sdk.builder import TraceBuilder
 from jiminy_sdk.calibration import CalibrationSession

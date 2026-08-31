@@ -24,7 +24,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Evaluate agent traces
+      - name: Audit agent traces
         uses: christianbelnavis4-chelnok/jiminy-action@v1
         with:
           api-key: ${{ secrets.JIMINY_API_KEY }}

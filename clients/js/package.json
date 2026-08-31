@@ -1,7 +1,7 @@
 {
   "name": "@ctbelnavis4/jiminy-sdk",
   "version": "0.1.0",
-  "description": "Jiminy SDK — attested trace builder and evaluation client for the Jiminy accountability API",
+  "description": "Jiminy SDK — attested trace builder and audit client for the Jiminy accountability API",
   "main": "src/index.js",
   "types": "index.d.ts",
   "files": [
