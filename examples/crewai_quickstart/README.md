@@ -43,11 +43,11 @@ python agent.py
 
 The crew assesses a commercial property application, checks binding
 authority, and recommends a decision. Once `crew.kickoff()` returns, the
-Jiminy evaluation has already been submitted and printed:
+Jiminy audit has already been submitted and printed:
 
 ```
 Crew output: ...
-Jiminy evaluation (crewai-<crew-id>):
+Jiminy audit (crewai-<crew-id>):
   Verdict: APPROVED
 ```
 

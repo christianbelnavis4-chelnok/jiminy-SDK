@@ -26,7 +26,7 @@ jiminy eval --demo
 
 ```
 ======================================================================
-  JIMINY -- Agent Accountability Evaluation
+  JIMINY -- Agent Accountability Audit
 ======================================================================
   Trace    : ref-01-approved-health-allpass
 
@@ -67,11 +67,11 @@ That runs a real, calibrated reference trace through the live six-criteria judge
 jiminy eval --trace ./my-trace.json
 ```
 
-Both commands hit a rate-limited, unauthenticated demo endpoint (a handful of evaluations per day — plenty to try it out) and nothing you submit is stored. When you're ready for unlimited use, `jiminy auth login` signs you up for a free self-serve account with no invite code needed.
+Both commands hit a rate-limited, unauthenticated demo endpoint (a handful of audits per day — plenty to try it out) and nothing you submit is stored. When you're ready for unlimited use, `jiminy auth login` signs you up for a free self-serve account with no invite code needed.
 
 ## What's open here
 
-This repo is the Apache 2.0-licensed client side of Jiminy: the Python and JavaScript SDKs, framework adapters (LangChain, CrewAI, LangSmith, OpenAI Agents, OpenTelemetry), a trace validator, and a reusable CI action for gating builds on evaluation verdicts. These are thin clients that submit `DecisionTrace` payloads to the hosted Jiminy API and interpret the results.
+This repo is the Apache 2.0-licensed client side of Jiminy: the Python and JavaScript SDKs, framework adapters (LangChain, CrewAI, LangSmith, OpenAI Agents, OpenTelemetry), a trace validator, and a reusable CI action for gating builds on audit verdicts. These are thin clients that submit `DecisionTrace` payloads to the hosted Jiminy API and interpret the results.
 
 The judge engine, scoring rubric, regulatory-mapping logic, calibration methodology, hosted platform, and dashboard are a separate, proprietary codebase and aren't included here.
 
@@ -79,14 +79,14 @@ The judge engine, scoring rubric, regulatory-mapping logic, calibration methodol
 
 Jiminy acts as an independent accountability layer between organisations that **own** AI agents and organisations that **evaluate** them. An evaluator submits a `DecisionTrace` — a structured log of what an agent did and why — and Jiminy uses Claude as an impartial judge to score the trace against six criteria.
 
-The result is an `EvaluationResult` containing a per-criterion finding (PASS / CONCERN / FAIL), an attribution, an evidence extract, and an overall verdict.
+The result is an `AuditResult` containing a per-criterion finding (PASS / CONCERN / FAIL), an attribution, an evidence extract, and an overall verdict.
 
 ```mermaid
 flowchart LR
     A[Agent Owner<br/>runs the agent] -->|logs steps| B(TraceBuilder)
     B -->|builds & signs<br/>HMAC-SHA256| C[DecisionTrace]
     C -->|submitted by<br/>Evaluator| D[Jiminy API<br/>hosted judge engine]
-    D -->|scores 6 criteria| E[EvaluationResult]
+    D -->|scores 6 criteria| E[AuditResult]
     E -->|verdict| F{approved /<br/>flagged /<br/>rejected}
 
     classDef default fill:#1C1F1D,stroke:#4A9B5F,color:#F7F6F2
@@ -178,7 +178,7 @@ print(result["overall_verdict"])
 
 ![Quick start demo](./assets/jiminy-quickstart.gif)
 
-See [`docs/QUICKSTART.md`](docs/QUICKSTART.md) (Python/REST) and [`docs/QUICKSTART_JS.md`](docs/QUICKSTART_JS.md) (JavaScript/TypeScript) for the full walkthrough, including calibration mode and reading back evaluation history.
+See [`docs/QUICKSTART.md`](docs/QUICKSTART.md) (Python/REST) and [`docs/QUICKSTART_JS.md`](docs/QUICKSTART_JS.md) (JavaScript/TypeScript) for the full walkthrough, including calibration mode and reading back audit history.
 
 ## What's in this repo
 
@@ -202,7 +202,7 @@ Gate PRs on your agent's Jiminy verdict without writing any application code —
 
 ## Authentication
 
-All evaluation endpoints require an `X-API-Key` header. Keys are issued via self-serve signup or by the Jiminy team for design partners — see [`docs/QUICKSTART.md`](docs/QUICKSTART.md).
+All audit endpoints require an `X-API-Key` header. Keys are issued via self-serve signup or by the Jiminy team for design partners — see [`docs/QUICKSTART.md`](docs/QUICKSTART.md).
 
 - Missing header → **401 Unauthorized**
 - Wrong key → **403 Forbidden**
@@ -210,7 +210,7 @@ All evaluation endpoints require an `X-API-Key` header. Keys are issued via self
 
 ## Attestation
 
-Every `DecisionTrace` built with `TraceBuilder` is signed step-by-step with an HMAC-SHA256 hash chain, so the server can cryptographically confirm the trace wasn't modified between emission and evaluation. See [`docs/ATTESTATION_SPEC.md`](docs/ATTESTATION_SPEC.md) for the full format and `attestation_vectors/` for the golden vectors both SDKs are checked against.
+Every `DecisionTrace` built with `TraceBuilder` is signed step-by-step with an HMAC-SHA256 hash chain, so the server can cryptographically confirm the trace wasn't modified between emission and audit. See [`docs/ATTESTATION_SPEC.md`](docs/ATTESTATION_SPEC.md) for the full format and `attestation_vectors/` for the golden vectors both SDKs are checked against.
 
 ## Contributing
 

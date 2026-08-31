@@ -48,7 +48,7 @@ Expected output:
 Asking: What is the weather in Paris?
 Answer: The weather in Paris is: Sunny, 22C
 
-Jiminy evaluation (langchain-<run-id>):
+Jiminy audit (langchain-<run-id>):
   Verdict: APPROVED
   Judge model: claude-sonnet-4-6
 ```
@@ -83,7 +83,7 @@ Try it locally first — the scope-violation fixture should come back
 ## Next steps
 
 - `docs/QUICKSTART.md` / `docs/QUICKSTART_JS.md` — the fuller REST/SDK
-  walkthroughs (calibration mode, reading evaluation history, attestation).
+  walkthroughs (calibration mode, reading audit history, attestation).
 - Swap `run_agent()` in `agent.py` for a real `AgentExecutor` or LangGraph
   graph — the Jiminy wiring doesn't change, since it hooks into LangChain's
   callback system, not your specific agent implementation.

@@ -133,7 +133,7 @@ def _print_validation_errors(exc: ValidationError) -> None:
         print()
 
     print(_line())
-    msg = "This trace will not be accepted by the Jiminy evaluation pipeline."
+    msg = "This trace will not be accepted by the Jiminy audit pipeline."
     print(f"{RED}{msg}{RESET}")
     print("Resolve the error(s) above and re-run the validator.\n")
 
@@ -202,14 +202,14 @@ def _print_success(
                 print(f"{prefix}{text_line}")
         print()
         print(
-            f"  {DIM}Warnings do not prevent evaluation. They are noted in the{RESET}"
+            f"  {DIM}Warnings do not prevent audit. They are noted in the{RESET}"
         )
-        print(f"  {DIM}evidence report to annotate affected criterion findings.{RESET}")
+        print(f"  {DIM}audit report to annotate affected criterion findings.{RESET}")
         print()
 
     # -- Ready for next step ------------------------------------------
     print(_line())
-    msg = "Trace accepted. Ready for Claude-as-Judge evaluation."
+    msg = "Trace accepted. Ready for Claude-as-Judge audit."
     print(f"{GREEN}{msg}{RESET}\n")
 
 

@@ -98,7 +98,7 @@ def main() -> None:
     if results:
         trace_id, result = results[0]
         print()
-        print(f"Jiminy evaluation ({trace_id}):")
+        print(f"Jiminy audit ({trace_id}):")
         print(f"  Verdict: {result.get('overall_verdict', 'unknown').upper()}")
         reliability = result.get("reliability") or {}
         if reliability:

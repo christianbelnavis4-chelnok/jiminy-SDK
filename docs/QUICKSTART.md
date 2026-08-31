@@ -1,10 +1,10 @@
 # Jiminy Quickstart
 
-This guide takes you from zero to a submitted evaluation in under 10 minutes. Every command is copy-pasteable.
+This guide takes you from zero to a submitted audit in under 10 minutes. Every command is copy-pasteable.
 
 Two paths, pick one:
 
-- **Self-serve** (most people) — no invite code, no human contact. Sign up with Firebase Auth and mint your own API key in step 2 below. Free tier: 25 evaluations/month, then paid credit plans — see [jiminy.uk/pricing](https://jiminy.uk/pricing). This is the default path in this guide.
+- **Self-serve** (most people) — no invite code, no human contact. Sign up with Firebase Auth and mint your own API key in step 2 below. Free tier: 25 audits/month, then paid credit plans — see [jiminy.uk/pricing](https://jiminy.uk/pricing). This is the default path in this guide.
 - **Design partner** — an organisationally-verified account with an operator-issued API key, for teams wanting the independence guarantee enforced across separate organisations rather than self-declared. Apply via `POST /partner/onboard` (invite code required; email hello@jiminy.uk). If this is you, skip the self-serve part of step 2 and use the key your operator gave you, along with the tenant ID and agent owner name you were given at onboarding.
 
 ---
@@ -112,7 +112,7 @@ Calibration report:
 Suggested improvements: none
 
 Calibration complete. Results were not persisted (mode=calibrate).
-Run without ?mode=calibrate to submit a live evaluation.
+Run without ?mode=calibrate to submit a live audit.
 ```
 
 `Integrity: unverified` is expected and correct here — `examples/first_trace.py`
@@ -121,7 +121,7 @@ below to sign traces with `TraceBuilder` and get `trace_integrity: verified`.
 
 ---
 
-## 4. Submit a live evaluation
+## 4. Submit a live audit
 
 Once you are satisfied with the calibration output, switch to live mode by removing `?mode=calibrate`. The result is persisted and included in your audit log.
 
@@ -172,7 +172,7 @@ Reliability: run_count=1
 
 ---
 
-## 5. Read your evaluation history
+## 5. Read your audit history
 
 ```bash
 curl -s "$JIMINY_BASE_URL/evaluations" \
@@ -188,11 +188,11 @@ curl -s "$JIMINY_BASE_URL/evaluations?verdict=rejected" \
   | python3 -m json.tool
 ```
 
-**You should see:** a JSON array (empty `[]` if you have no rejected evaluations yet, or none from step 4 above), each entry containing the same `overall_verdict` / `reliability` / criteria-notes shape you saw in step 4's response.
+**You should see:** a JSON array (empty `[]` if you have no rejected audits yet, or none from step 4 above), each entry containing the same `overall_verdict` / `reliability` / criteria-notes shape you saw in step 4's response.
 
 ---
 
-## 6. Multi-run evaluations (higher reliability signal)
+## 6. Multi-run audits (higher reliability signal)
 
 For borderline or high-stakes traces, run the judge multiple times and receive the conservative modal verdict:
 
@@ -250,9 +250,9 @@ The returned `trace` dict contains `step_hash` on each step and a `trace_root_ha
 
 ---
 
-## 8. Submit a case study (after 10+ evaluations)
+## 8. Submit a case study (after 10+ audits)
 
-Once you have at least 10 evaluations, share your deployment experience via the case study endpoint. This data directly informs Jiminy's calibration and (with your consent) anonymised publication.
+Once you have at least 10 audits, share your deployment experience via the case study endpoint. This data directly informs Jiminy's calibration and (with your consent) anonymised publication.
 
 ```python
 import requests, os
@@ -281,7 +281,7 @@ resp.raise_for_status()
 print(resp.json()["case_study_id"])
 ```
 
-**You should see:** a single printed string, the new case study's ID (e.g. `case-a1b2c3d4`). A `422` here instead usually means `trace_count` is below the 10-evaluation minimum — check `/evaluations` from step 5 to confirm you actually have enough.
+**You should see:** a single printed string, the new case study's ID (e.g. `case-a1b2c3d4`). A `422` here instead usually means `trace_count` is below the 10-audit minimum — check `/evaluations` from step 5 to confirm you actually have enough.
 
 ---
 
