@@ -13,7 +13,7 @@
 
 # Jiminy SDK — clients for the Independent AI Agent Accountability Layer
 
-Jiminy evaluates AI agent decision traces against six accountability criteria and produces governance reports suitable for compliance review.
+Jiminy audits AI agent decision traces against six accountability criteria and produces evidence & governance reports suitable for compliance review.
 
 ## Try it in 30 seconds
 
