@@ -28,6 +28,8 @@ jobs:
           PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
           PR_TITLE: ${{ github.event.pull_request.title }}
           PR_BODY: ${{ github.event.pull_request.body }}
+          IS_FORK_PR: ${{ github.event.pull_request.head.repo.fork }}
+          HYGIENE_BLOCKED_TERMS: ${{ secrets.HYGIENE_BLOCKED_TERMS }}
         run: python3 scripts/check_public_repo_hygiene.py
 
   test:
