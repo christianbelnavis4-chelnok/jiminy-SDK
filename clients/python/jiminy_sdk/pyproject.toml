@@ -1,7 +1,7 @@
 [project]
 name = "jiminy-sdk"
 version = "0.3.0"
-description = "Jiminy SDK — attested trace builder and calibration tools for the Jiminy audit API"
+description = "Trace builder, CLI and calibration tools for the Jiminy Agent Audit API"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = []
