@@ -2,7 +2,7 @@
 
 This is the JS-SDK mirror of `docs/QUICKSTART.md`, updated for the
 self-serve signup path  — no invite code,
-no manual review. If you're a design partner with an operator-issued key
+no manual review. If you have an operator-issued key (a managed account)
 instead, skip step 2 and use the key you were given.
 
 ---
@@ -64,7 +64,7 @@ export JIMINY_TENANT_ID="the tenant_id from the response"
 
 Self-serve tenants have an **open scope**: you may declare any
 `agentOwner` name for your own traces — there's no operator pre-registering
-owners per signup, unlike the invite-code design-partner path. The
+owners per signup, unlike managed accounts. The
 self-serve free tier is capped at 25 audits/month and a 10 req/min
 rate limit .
 

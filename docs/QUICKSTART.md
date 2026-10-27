@@ -5,7 +5,7 @@ This guide takes you from zero to a submitted audit in under 10 minutes. Every c
 Two paths, pick one:
 
 - **Self-serve** (most people) — no invite code, no human contact. Sign up with Firebase Auth and mint your own API key in step 2 below. Free tier: 25 audits/month, then paid credit plans — see [jiminy.uk/pricing](https://jiminy.uk/pricing). This is the default path in this guide.
-- **Design partner** — an organisationally-verified account with an operator-issued API key, for teams wanting the independence guarantee enforced across separate organisations rather than self-declared. Apply via `POST /partner/onboard` (invite code required; email hello@jiminy.uk). If this is you, skip the self-serve part of step 2 and use the key your operator gave you, along with the tenant ID and agent owner name you were given at onboarding.
+- **Managed account** — an organisationally-verified account with an operator-issued API key, for teams wanting the independence guarantee enforced across separate organisations rather than self-declared. These are set up on request: email hello@jiminy.uk. If this is you, skip the self-serve part of step 2 and use the key your operator gave you, along with the tenant ID and agent owner name you were given when your account was set up.
 
 ---
 
@@ -13,7 +13,7 @@ Two paths, pick one:
 
 - Python 3.11 or later
 - For self-serve: a Firebase account (email/password or OAuth) — this is the one-time human step; everything after it is programmatic
-- For design partners: a Jiminy account provisioned via [app.jiminy.uk/signup](https://app.jiminy.uk/signup) and an operator-issued API key
+- For managed accounts: a Jiminy account provisioned via [app.jiminy.uk/signup](https://app.jiminy.uk/signup) and an operator-issued API key
 
 ---
 
@@ -67,11 +67,11 @@ Self-serve accounts have an **open `agent_owner` scope** — no pre-registration
 ```bash
 export JIMINY_API_KEY="the api_key from above, or your operator-issued key"
 export JIMINY_BASE_URL="https://jiminy-api-<your-project>.a.run.app"
-export JIMINY_AGENT_OWNER="Your-Agent-Name"   # self-serve: any name; design partner: the exact name you registered
+export JIMINY_AGENT_OWNER="Your-Agent-Name"   # self-serve: any name; managed account: the exact name you registered
 export JIMINY_TENANT_ID="your-tenant-id"      # the tenant_id from the response above, or given at onboarding
 ```
 
-Replace the URL with the Cloud Run endpoint (self-serve: the public one at the top of `README.md`; design partner: whatever your operator provided).
+Replace the URL with the Cloud Run endpoint (self-serve: the public one at the top of `README.md`; managed account: whatever your operator provided).
 `JIMINY_AGENT_OWNER` and `JIMINY_TENANT_ID` are required by
 `examples/first_trace.py` in step 3 below — without them it falls back to
 placeholder values (`Example-Agent` / `example-tenant`) that are not in
@@ -212,7 +212,7 @@ The `reliability.verdict_agreement` field tells you what fraction of runs agreed
 
 ## 7. Trace attestation (tamper detection)
 
-**Design partners only** — this step needs a per-tenant HMAC signing key (`REDACTED_SECRET_NAME`), which is provisioned by your operator, not available to self-serve tenants. A self-serve trace without a signing key evaluates correctly but reports `trace_integrity: unverified`, not `broken` — that's expected, not an error.
+**Managed accounts only** — this step needs a per-tenant HMAC signing key (`REDACTED_SECRET_NAME`), which is provisioned by your operator, not available to self-serve tenants. A self-serve trace without a signing key evaluates correctly but reports `trace_integrity: unverified`, not `broken` — that's expected, not an error.
 
 To prove that submitted trace content has not been altered, use the `TraceBuilder` from the SDK. It signs each step with HMAC-SHA256 and includes a chain root hash in the submission.
 
@@ -302,4 +302,4 @@ print(resp.json()["case_study_id"])
 - `docs/ATTESTATION_SPEC.md` — canonicalisation spec and golden test vectors
 - `examples/first_trace.py` — minimal runnable example (calibration mode)
 - `clients/python/jiminy_sdk/` — full SDK source
-- `POST /partner/onboard` — apply for design partner access
+- `POST /partner/onboard` — request a managed account
