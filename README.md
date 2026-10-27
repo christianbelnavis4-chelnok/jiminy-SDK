@@ -11,13 +11,13 @@
 [![npm](https://img.shields.io/npm/v/@ctbelnavis4/jiminy-sdk)](https://www.npmjs.com/package/@ctbelnavis4/jiminy-sdk)
 [![Marketplace](https://img.shields.io/badge/marketplace-Jiminy%20Evaluate-blue?logo=github)](https://github.com/marketplace/actions/jiminy-evaluate)
 
-# Jiminy SDK — clients for the Independent AI Agent Accountability Layer
+# Jiminy SDK: clients for the agent accountability layer
 
-Jiminy audits AI agent decision traces against six accountability criteria and produces evidence & governance reports suitable for compliance review.
+Jiminy audits AI agent decision traces against six accountability criteria and produces Audit Reports for compliance review.
 
 ## Try it in 30 seconds
 
-No account, no API key, no signup form — install the SDK and get a real verdict back immediately:
+No account, no API key, no signup form: install the SDK and get a real verdict back immediately:
 
 ```bash
 pip install jiminy-sdk
@@ -61,13 +61,13 @@ jiminy eval --demo
 ======================================================================
 ```
 
-That runs a real, calibrated reference trace through the live six-criteria judge — not a canned response. Got your own agent's trace? Run it the same way:
+That runs a real, calibrated reference trace through the live six-criteria judge, not a canned response. Got your own agent's trace? Run it the same way:
 
 ```bash
 jiminy eval --trace ./my-trace.json
 ```
 
-Both commands hit a rate-limited, unauthenticated demo endpoint (a handful of audits per day — plenty to try it out) and nothing you submit is stored. When you're ready for unlimited use, `jiminy auth login` signs you up for a free self-serve account with no invite code needed.
+Both commands hit a rate-limited, unauthenticated demo endpoint (a handful of audits per day, plenty to try it out) and nothing you submit is stored. When you're ready for unlimited use, `jiminy auth login` signs you up for a free self-serve account with no invite code needed.
 
 ## What's open here
 
@@ -77,7 +77,7 @@ The judge engine, scoring rubric, regulatory-mapping logic, calibration methodol
 
 ## What is Jiminy?
 
-Jiminy acts as an independent accountability layer between organisations that **own** AI agents and organisations that **evaluate** them. An evaluator submits a `DecisionTrace` — a structured log of what an agent did and why — and Jiminy uses Claude as an impartial judge to score the trace against six criteria.
+Jiminy acts as an independent accountability layer between organisations that **own** AI agents and organisations that **evaluate** them. An evaluator submits a `DecisionTrace` (a structured log of what an agent did and why), and Jiminy uses Claude as an impartial judge to score the trace against six criteria.
 
 The result is an `AuditResult` containing a per-criterion finding (PASS / CONCERN / FAIL), an attribution, an evidence extract, and an overall verdict.
 
@@ -130,13 +130,13 @@ Domain profiles (`health_insurance_prior_auth`, `financial_trading`, `hr_recruit
 
 ## Getting a test API key
 
-Test API keys are issued by the Jiminy team. Contact `hello@jiminy.uk` or visit `https://jiminy.uk/testers` and use an invite code to request access, or follow the self-serve signup flow in [`docs/QUICKSTART.md`](docs/QUICKSTART.md). The key goes in the `X-API-Key` header on all authenticated requests.
+Run `jiminy auth login` to create a free self-serve account and API key. No invite code is needed. The key goes in the `X-API-Key` header on all authenticated requests. See [`docs/QUICKSTART.md`](docs/QUICKSTART.md) for the full walk-through.
 
 ---
 
 ## Using the SDK in your own code
 
-Already tried `jiminy eval --demo` above? Once you have an API key ([`jiminy auth login`](#getting-a-test-api-key), or a design-partner key), build and submit your own attested traces from Python:
+Already tried `jiminy eval --demo` above? Once you have an API key ([`jiminy auth login`](#getting-a-test-api-key)), build and submit your own attested traces from Python:
 
 <details>
 <summary><strong>Full example</strong></summary>
@@ -184,10 +184,10 @@ See [`docs/QUICKSTART.md`](docs/QUICKSTART.md) (Python/REST) and [`docs/QUICKSTA
 
 | Path | What it is |
 |------|-----------|
-| `clients/python/jiminy_sdk/` | The `jiminy-sdk` PyPI package — `TraceBuilder`, `Client`, `CalibrationSession`, and the `jiminy` CLI (`jiminy eval --demo`/`--trace`, `jiminy auth login`). Zero runtime dependencies. |
-| `clients/js/` | `@ctbelnavis4/jiminy-sdk` — the JS/TS equivalent, mirroring the Python SDK. |
+| `clients/python/jiminy_sdk/` | The `jiminy-sdk` PyPI package: `TraceBuilder`, `Client`, `CalibrationSession`, and the `jiminy` CLI (`jiminy eval --demo`/`--trace`, `jiminy auth login`). Zero runtime dependencies. |
+| `clients/js/` | `@ctbelnavis4/jiminy-sdk`: the JS/TS equivalent, mirroring the Python SDK. |
 | `adapters/` | Drop-in adapters that build a `DecisionTrace` from a LangChain, CrewAI, LangSmith, OpenAI Agents, or OpenTelemetry run. |
-| `validator/` | Standalone `DecisionTrace` schema validator — useful for checking trace fixtures before submission. |
+| `validator/` | Standalone `DecisionTrace` schema validator, useful for checking trace fixtures before submission. |
 | `schema/trace_schema.py` | The `DecisionTrace`/`Step` pydantic models shared by the adapters and validator. |
 | [`jiminy-action`](https://github.com/christianbelnavis4-chelnok/jiminy-action) + `scripts/ci_evaluate.py` | A reusable CI action: evaluate trace fixtures on every PR and fail the build on a bad verdict. Works with the Python and JS SDKs. |
 | `examples/` | Runnable end-to-end examples, including a LangChain and CrewAI quickstart with CI gating wired up. |
@@ -195,14 +195,14 @@ See [`docs/QUICKSTART.md`](docs/QUICKSTART.md) (Python/REST) and [`docs/QUICKSTA
 
 ## CLI-style CI gating
 
-Gate PRs on your agent's Jiminy verdict without writing any application code — see [`jiminy-action`](https://github.com/christianbelnavis4-chelnok/jiminy-action). Two ways to feed it traces:
+Gate PRs on your agent's Jiminy verdict without writing any application code. See [`jiminy-action`](https://github.com/christianbelnavis4-chelnok/jiminy-action). Two ways to feed it traces:
 
 - **Bring your own traces.** Check `traces/*.json` fixtures into your repo (hand-written, or captured from a real run once) and evaluate them on every PR. Worked examples: `examples/*/ci-workflow-example.yml`.
-- **Auto-capture from a live run** (LangChain only for now). The CI job runs your agent itself and captures the trace automatically via [`scripts/ci_capture_and_evaluate.py`](scripts/ci_capture_and_evaluate.py) and [`adapters/langchain/adapter.py`](adapters/langchain/adapter.py)'s capture mode — no fixtures to maintain by hand. Worked example: [`examples/langchain_quickstart/ci-workflow-auto-capture.yml`](examples/langchain_quickstart/ci-workflow-auto-capture.yml).
+- **Auto-capture from a live run** (LangChain only for now). The CI job runs your agent itself and captures the trace automatically via [`scripts/ci_capture_and_evaluate.py`](scripts/ci_capture_and_evaluate.py) and [`adapters/langchain/adapter.py`](adapters/langchain/adapter.py)'s capture mode, with no fixtures to maintain by hand. Worked example: [`examples/langchain_quickstart/ci-workflow-auto-capture.yml`](examples/langchain_quickstart/ci-workflow-auto-capture.yml).
 
 ## Authentication
 
-All audit endpoints require an `X-API-Key` header. Keys are issued via self-serve signup or by the Jiminy team for design partners — see [`docs/QUICKSTART.md`](docs/QUICKSTART.md).
+All audit endpoints require an `X-API-Key` header. Keys are issued via self-serve signup. See [`docs/QUICKSTART.md`](docs/QUICKSTART.md).
 
 - Missing header → **401 Unauthorized**
 - Wrong key → **403 Forbidden**
@@ -218,4 +218,4 @@ See [`CONTRIBUTING.md`](CONTRIBUTING.md). The quick start demo GIF above is rege
 
 ## License
 
-Apache License 2.0 — see [LICENSE](LICENSE). This license covers the SDKs, adapters, and tooling in this repo; it does not cover the hosted Jiminy platform or judge engine, which are separate proprietary systems.
+Apache License 2.0. See [LICENSE](LICENSE). This license covers the SDKs, adapters, and tooling in this repo; it does not cover the hosted Jiminy platform or judge engine, which are separate proprietary systems.
