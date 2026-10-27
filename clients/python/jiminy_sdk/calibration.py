@@ -19,7 +19,7 @@ class CalibrationSession:
 
         import httpx
         session = CalibrationSession(
-            api_base="https://api.jiminy.uk",
+            api_base="https://jiminy-api-287920422190.europe-west2.run.app",
             api_key="your-key",
             hmac_key="your-hmac-key",
             trace_id="...",

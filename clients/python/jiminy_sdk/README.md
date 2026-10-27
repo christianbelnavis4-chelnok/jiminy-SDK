@@ -59,7 +59,7 @@ builder.finalize("Approved. Auth reference: PA-2026-001.")
 
 trace = builder.build()  # a plain dict, ready to POST
 
-client = Client(api_key="your-api-key", base_url="https://api.jiminy.uk")
+client = Client(api_key="your-api-key", base_url="https://jiminy-api-287920422190.europe-west2.run.app")
 result = client.evaluate(trace)
 print(result["overall_verdict"])
 ```
