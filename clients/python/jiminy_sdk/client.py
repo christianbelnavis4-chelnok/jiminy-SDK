@@ -49,7 +49,7 @@ class JiminyAPIError(Exception):
 class Client:
     """Minimal synchronous client for the Jiminy evaluation API.
 
-    One call to build a self-serve or design-partner client:
+    One call to build a self-serve or managed-account client:
 
         client = Client(api_key="...", base_url="https://jiminy-api-...")
     """

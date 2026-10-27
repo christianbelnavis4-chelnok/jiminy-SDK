@@ -1,4 +1,4 @@
-"""Jiminy SDK — CalibrationSession for design partner onboarding."""
+"""Jiminy SDK: CalibrationSession for calibrating a new agent before go-live."""
 
 from __future__ import annotations
 
@@ -11,7 +11,7 @@ from jiminy_sdk.builder import TraceBuilder
 class CalibrationSession:
     """Wraps TraceBuilder to build an attested trace and submit it in calibrate mode.
 
-    Intended for design partners running their first real traces through the judge
+    Intended for teams running their first real traces through the judge
     before going live. Calibration mode evaluations are not persisted; the result
     includes a per-criterion ``calibration_report`` to guide improvements.
 
