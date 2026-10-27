@@ -128,7 +128,7 @@ def auth_login(base_url: str) -> int:
     except Exception:  # noqa: BLE001
         opened = False
     if not opened:
-        print(f"  Could not open a browser automatically. Visit this URL instead:")
+        print("  Could not open a browser automatically. Visit this URL instead:")
         print(f"    {verification_uri_complete}")
         print()
 
